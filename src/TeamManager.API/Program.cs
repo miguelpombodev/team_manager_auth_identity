@@ -11,7 +11,12 @@ var configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile(
         $"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json",
-        optional: true, reloadOnChange: true).AddEnvironmentVariables().AddCommandLine(args).Build();
+        optional: true,
+        reloadOnChange: true
+    )
+    .AddEnvironmentVariables()
+    .AddCommandLine(args)
+    .Build();
 
 builder.Host.ConfigureSerilog();
 
