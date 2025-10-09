@@ -19,8 +19,6 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
             modelBuilder
                 .HasDefaultSchema("TeamManager")
                 .HasAnnotation("ProductVersion", "9.0.9")
-                .HasAnnotation("Relational:HistoryTableName", "__EFMigrationsHistory")
-                .HasAnnotation("Relational:HistoryTableSchema", "TeamManager")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -29,26 +27,21 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("text")
-                        .HasColumnName("concurrency_stamp");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("normalized_name");
+                        .HasColumnType("character varying(256)");
 
-                    b.HasKey("Id")
-                        .HasName("pk_roles");
+                    b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
@@ -61,28 +54,22 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("text")
-                        .HasColumnName("claim_type");
+                        .HasColumnType("text");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("text")
-                        .HasColumnName("claim_value");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("role_id");
+                        .HasColumnType("uuid");
 
-                    b.HasKey("Id")
-                        .HasName("pk_role_claims");
+                    b.HasKey("Id");
 
-                    b.HasIndex("RoleId")
-                        .HasDatabaseName("ix_role_claims_role_id");
+                    b.HasIndex("RoleId");
 
                     b.ToTable("RoleClaims", "TeamManager");
                 });
@@ -91,28 +78,22 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("text")
-                        .HasColumnName("claim_type");
+                        .HasColumnType("text");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("text")
-                        .HasColumnName("claim_value");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("UUID")
-                        .HasColumnName("user_id");
+                        .HasColumnType("UUID");
 
-                    b.HasKey("Id")
-                        .HasName("pk_user_claims");
+                    b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_user_claims_user_id");
+                    b.HasIndex("UserId");
 
                     b.ToTable("UserClaims", "TeamManager");
                 });
@@ -120,26 +101,20 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("text")
-                        .HasColumnName("login_provider");
+                        .HasColumnType("text");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("text")
-                        .HasColumnName("provider_key");
+                        .HasColumnType("text");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("text")
-                        .HasColumnName("provider_display_name");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("UUID")
-                        .HasColumnName("user_id");
+                        .HasColumnType("UUID");
 
-                    b.HasKey("LoginProvider", "ProviderKey")
-                        .HasName("pk_user_logins");
+                    b.HasKey("LoginProvider", "ProviderKey");
 
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_user_logins_user_id");
+                    b.HasIndex("UserId");
 
                     b.ToTable("UserLogins", "TeamManager");
                 });
@@ -147,18 +122,14 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
                 {
                     b.Property<Guid>("UserId")
-                        .HasColumnType("UUID")
-                        .HasColumnName("user_id");
+                        .HasColumnType("UUID");
 
                     b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("role_id");
+                        .HasColumnType("uuid");
 
-                    b.HasKey("UserId", "RoleId")
-                        .HasName("pk_user_roles");
+                    b.HasKey("UserId", "RoleId");
 
-                    b.HasIndex("RoleId")
-                        .HasDatabaseName("ix_user_roles_role_id");
+                    b.HasIndex("RoleId");
 
                     b.ToTable("UserRoles", "TeamManager");
                 });
@@ -166,23 +137,18 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
                     b.Property<Guid>("UserId")
-                        .HasColumnType("UUID")
-                        .HasColumnName("user_id");
+                        .HasColumnType("UUID");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("text")
-                        .HasColumnName("login_provider");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text")
-                        .HasColumnName("name");
+                        .HasColumnType("text");
 
                     b.Property<string>("Value")
-                        .HasColumnType("text")
-                        .HasColumnName("value");
+                        .HasColumnType("text");
 
-                    b.HasKey("UserId", "LoginProvider", "Name")
-                        .HasName("pk_user_tokens");
+                    b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("UserTokens", "TeamManager");
                 });
@@ -192,76 +158,75 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("UUID")
-                        .HasColumnName("id");
+                        .HasColumnName("Id");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("INT4")
-                        .HasColumnName("access_failed_count");
+                        .HasColumnName("AccessFailedCount");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("CHAR(36)")
-                        .HasColumnName("concurrency_stamp");
+                        .HasColumnName("ConcurrencyStamp");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("VARCHAR(100)")
-                        .HasColumnName("email");
+                        .HasColumnName("Email");
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("BOOL")
-                        .HasColumnName("email_confirmed");
+                        .HasColumnName("EmailConfirmed");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("BOOL")
-                        .HasColumnName("lockout_enabled");
+                        .HasColumnName("LockoutEnabled");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("TIMESTAMPTZ")
-                        .HasColumnName("lockout_end");
+                        .HasColumnName("LockoutEnd");
 
                     b.Property<string>("NormalizedEmail")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("VARCHAR(100)")
-                        .HasColumnName("normalized_email");
+                        .HasColumnName("NormalizedEmail");
 
                     b.Property<string>("NormalizedUserName")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("VARCHAR(100)")
-                        .HasColumnName("normalized_username");
+                        .HasColumnName("NormalizedUserName");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("TEXT")
-                        .HasColumnName("password_hash");
+                        .HasColumnName("PasswordHash");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("VARCHAR(100)")
-                        .HasColumnName("phone_number");
+                        .HasColumnName("PhoneNumber");
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("BOOL")
-                        .HasColumnName("phone_number_confirmed");
+                        .HasColumnName("PhoneNumberConfirmed");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("TEXT")
-                        .HasColumnName("security_stamp");
+                        .HasColumnName("SecurityStamp");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("BOOL")
-                        .HasColumnName("f2a_enabled");
+                        .HasColumnName("TwoFactorEnabled");
 
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("VARCHAR(100)")
-                        .HasColumnName("username");
+                        .HasColumnName("UserName");
 
-                    b.HasKey("Id")
-                        .HasName("pk_application_user");
+                    b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -271,8 +236,7 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.HasIndex("Id", "Email", "UserName", "NormalizedUserName", "NormalizedEmail")
-                        .IsUnique()
-                        .HasDatabaseName("ix_application_user_id_email_username_normalized_username_norma");
+                        .IsUnique();
 
                     b.ToTable("ApplicationUser", "TeamManager");
                 });
@@ -289,12 +253,10 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                         .HasColumnType("VARCHAR(100)")
                         .HasColumnName("team_name");
 
-                    b.HasKey("Id")
-                        .HasName("pk_teams");
+                    b.HasKey("Id");
 
                     b.HasIndex("Name")
-                        .IsUnique()
-                        .HasDatabaseName("ix_teams_team_name");
+                        .IsUnique();
 
                     b.ToTable("Teams", "TeamManager");
                 });
@@ -314,16 +276,13 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("full_name");
+                        .HasColumnType("text");
 
                     b.Property<string>("Initials")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("initials");
+                        .HasColumnType("text");
 
-                    b.HasKey("Id", "PublicId")
-                        .HasName("pk_user_complements");
+                    b.HasKey("Id", "PublicId");
 
                     b.ToTable("UserComplements", "TeamManager");
                 });
@@ -331,18 +290,14 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("TeamManager.Domain.Entities.UserTeam", b =>
                 {
                     b.Property<Guid>("UserId")
-                        .HasColumnType("UUID")
-                        .HasColumnName("user_id");
+                        .HasColumnType("UUID");
 
                     b.Property<Guid>("TeamId")
-                        .HasColumnType("UUID")
-                        .HasColumnName("team_id");
+                        .HasColumnType("UUID");
 
-                    b.HasKey("UserId", "TeamId")
-                        .HasName("pk_user_teams");
+                    b.HasKey("UserId", "TeamId");
 
-                    b.HasIndex("TeamId")
-                        .HasDatabaseName("ix_user_teams_team_id");
+                    b.HasIndex("TeamId");
 
                     b.ToTable("UserTeams", "TeamManager");
                 });
@@ -353,8 +308,7 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_role_claims_roles_role_id");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
@@ -363,8 +317,7 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_claims_asp_net_users_user_id");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
@@ -373,8 +326,7 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_logins_asp_net_users_user_id");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
@@ -383,15 +335,13 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_roles_roles_role_id");
+                        .IsRequired();
 
                     b.HasOne("TeamManager.Domain.Entities.ApplicationAuthUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_roles_asp_net_users_user_id");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
@@ -400,8 +350,7 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_tokens_asp_net_users_user_id");
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TeamManager.Domain.Entities.UserTeam", b =>
@@ -410,15 +359,13 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                         .WithMany("UserTeams")
                         .HasForeignKey("TeamId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_teams_teams_team_id");
+                        .IsRequired();
 
                     b.HasOne("TeamManager.Domain.Entities.ApplicationAuthUser", "User")
                         .WithMany("UserTeams")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_teams_application_user_user_id");
+                        .IsRequired();
 
                     b.Navigation("Team");
 

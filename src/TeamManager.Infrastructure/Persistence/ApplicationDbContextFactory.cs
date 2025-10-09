@@ -18,8 +18,12 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
         var connectionString = configuration.GetConnectionString("TeamManager");
 
-        optionsBuilder.UseNpgsql(connectionString).UseSnakeCaseNamingConvention();
-
+        optionsBuilder
+            .UseNpgsql(connectionString, options =>
+            {
+                options.MigrationsHistoryTable("__EFMigrationsHistory", "TeamManager");
+            });
+        
         return new ApplicationDbContext(optionsBuilder.Options);
     }
 }

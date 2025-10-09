@@ -14,76 +14,76 @@ public class ApplicationUserMappingConfiguration : IEntityTypeConfiguration<Appl
 
 
         builder.Property(au => au.Id)
-            .HasColumnName("id")
+            .HasColumnName("Id")
             .HasColumnType("UUID")
             .IsRequired();
 
         builder.Property(au => au.UserName)
-            .HasColumnName("username")
+            .HasColumnName("UserName")
             .HasColumnType("VARCHAR(100)")
             .IsRequired();
 
         builder.Property(au => au.NormalizedUserName)
-            .HasColumnName("normalized_username")
+            .HasColumnName("NormalizedUserName")
             .HasColumnType("VARCHAR(100)")
             .IsRequired();
 
         builder.Property(au => au.Email)
-            .HasColumnName("email")
+            .HasColumnName("Email")
             .HasColumnType("VARCHAR(100)")
             .IsRequired();
 
         builder.Property(au => au.NormalizedEmail)
-            .HasColumnName("normalized_email")
+            .HasColumnName("NormalizedEmail")
             .HasColumnType("VARCHAR(100)")
             .IsRequired();
 
         builder.Property(au => au.PasswordHash)
-            .HasColumnName("password_hash")
+            .HasColumnName("PasswordHash")
             .HasColumnType("TEXT")
             .IsRequired(false);
 
         builder.Property(au => au.SecurityStamp)
-            .HasColumnName("security_stamp")
+            .HasColumnName("SecurityStamp")
             .HasColumnType("TEXT")
             .IsRequired(false);
 
         builder.Property(au => au.ConcurrencyStamp)
-            .HasColumnName("concurrency_stamp")
+            .HasColumnName("ConcurrencyStamp")
             .HasColumnType("CHAR(36)")
             .IsRequired(false);
 
         builder.Property(au => au.TwoFactorEnabled)
-            .HasColumnName("f2a_enabled")
+            .HasColumnName("TwoFactorEnabled")
             .HasColumnType("BOOL")
             .IsRequired();
         
         builder.Property(au => au.EmailConfirmed)
-            .HasColumnName("email_confirmed")
+            .HasColumnName("EmailConfirmed")
             .HasColumnType("BOOL")
             .IsRequired();
         
         builder.Property(au => au.PhoneNumber)
-            .HasColumnName("phone_number")
+            .HasColumnName("PhoneNumber")
             .HasColumnType("VARCHAR(100)")
             .IsRequired();
         
         builder.Property(au => au.PhoneNumberConfirmed)
-            .HasColumnName("phone_number_confirmed")
+            .HasColumnName("PhoneNumberConfirmed")
             .HasColumnType("BOOL")
             .IsRequired();
 
         builder.Property(au => au.LockoutEnd)
-            .HasColumnName("lockout_end")
+            .HasColumnName("LockoutEnd")
             .HasColumnType("TIMESTAMPTZ");
 
         builder.Property(au => au.LockoutEnabled)
-            .HasColumnName("lockout_enabled")
+            .HasColumnName("LockoutEnabled")
             .HasColumnType("BOOL")
             .IsRequired();
 
         builder.Property(au => au.AccessFailedCount)
-            .HasColumnName("access_failed_count")
+            .HasColumnName("AccessFailedCount")
             .HasColumnType("INT4")
             .IsRequired();
 

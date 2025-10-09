@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
 using TeamManager.Domain.Entities;
 
 namespace TeamManager.Infrastructure.Persistence;
@@ -33,8 +34,5 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<IdentityUserToken<Guid>>().ToTable("UserTokens");
 
         builder.ApplyConfigurationsFromAssembly(AssemblyReference.Assembly);
-
-        builder.Model.SetAnnotation("Relational:HistoryTableName", "__EFMigrationsHistory");
-        builder.Model.SetAnnotation("Relational:HistoryTableSchema", "TeamManager");
     }
 }

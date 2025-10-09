@@ -10,6 +10,12 @@ public static class IdentityService
     private const int RequiredPasswordLength = 8;
     public static IServiceCollection AddIdentitySetup(this IServiceCollection services)
     {
+        /* The method AddDefaultTokenProviders tried to inject the interface IDataProtectionProvider,
+         however to implement this, we need to call the method AddDataProtection. Otherwise we'll have a
+         InvalidOperationException error.
+         */
+        services.AddDataProtection();
+        
         services.AddIdentityCore<ApplicationAuthUser>(options =>
             {
                 options.User.RequireUniqueEmail = true;
@@ -19,7 +25,7 @@ public static class IdentityService
                 options.Password.RequireLowercase = true;
                 options.Password.RequireNonAlphanumeric = true;
             })
-            .AddRoles<IdentityRole>()
+            .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
         
