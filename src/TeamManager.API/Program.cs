@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using TeamManager.API.Endpoints;
 using TeamManager.API.Extensions;
+using TeamManager.Application.Extensions;
 using TeamManager.Domain.Entities;
 using TeamManager.Infrastructure.Extensions;
 using TeamManager.Infrastructure.Persistence;
@@ -25,6 +27,7 @@ builder.Services
     .AddInfrastructureServices(configuration)
     .AddIdentitySetup()
     .AddAuthenticationAndAuthorization()
+    .AddUseCases()
     .AddSwaggerGen();
 
 var app = builder.Build();
@@ -56,5 +59,7 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseHttpsRedirection();
+
+AuthEndpoints.MapEndpoint(app);
 
 await app.RunAsync();
