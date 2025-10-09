@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
 using TeamManager.API.Extensions;
 using TeamManager.Domain.Entities;
 using TeamManager.Infrastructure.Extensions;
@@ -33,7 +32,7 @@ if (app.Environment.IsDevelopment())
     using var scope = app.Services.CreateScope();
 
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.Migrate();
+    await dbContext.Database.MigrateAsync();
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
@@ -52,4 +51,4 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseHttpsRedirection();
 
-app.Run();
+await app.RunAsync();
