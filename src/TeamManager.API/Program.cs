@@ -24,7 +24,8 @@ builder.Services
     .AddOpenApi()
     .AddInfrastructureServices(configuration)
     .AddIdentitySetup()
-    .AddAuthenticationAndAuthorization();
+    .AddAuthenticationAndAuthorization()
+    .AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -32,7 +33,7 @@ app.AddSerilog();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.AddSwagger();
 
     using var scope = app.Services.CreateScope();
 
