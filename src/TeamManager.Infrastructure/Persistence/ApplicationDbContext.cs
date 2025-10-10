@@ -19,6 +19,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     public DbSet<Team> Teams => Set<Team>();
     public DbSet<UserTeam> UserTeams => Set<UserTeam>();
+    public DbSet<UserComplements> UserComplements => Set<UserComplements>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
