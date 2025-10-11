@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using TeamManager.Domain.Common.Abstraction;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Members.Abstractions;
 
@@ -14,21 +15,49 @@ public class MemberRepository : IMemberRepository
         _userManager = userManager;
         _context = context;
     }
-    
-    public async Task<ApplicationAuthUser> CreateAsync(ApplicationAuthUser user, UserComplements userComplements, string userPassword)
+
+    public async Task<Result<ApplicationAuthUser>> CreateAsync(ApplicationAuthUser user,
+        UserComplements userComplements, string userPassword)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync(); 
-        
-        IdentityResult identityResult =  await _userManager.CreateAsync(user, userPassword);
-        
-        await _userManager.AddToRoleAsync(user, Roles.TeamMember);
+        await using var transaction = await _context.Database.BeginTransactionAsync();
 
-        await _context.UserComplements.AddAsync(userComplements);
+        try
+        {
+            var identityResult = await _userManager.CreateAsync(user, userPassword);
 
-        await _context.SaveChangesAsync();
-        await transaction.CommitAsync();
-        
-        return user;
+            if (!identityResult.Succeeded)
+            {
+                var errors = string.Join(",", identityResult.Errors.Select(x => x.Description));
+                return Result<ApplicationAuthUser>.Failure(new Error(
+                    "MemberRepositoryError",
+                    Description: $"Failed to create a new member: {errors}"));
+            }
+
+            var roleResult = await _userManager.AddToRoleAsync(user, Roles.TeamMember);
+
+            if (!roleResult.Succeeded)
+            {
+                var errors = string.Join(", ", roleResult.Errors.Select(x => x.Description));
+                await transaction.RollbackAsync();
+                return Result<ApplicationAuthUser>.Failure(new Error(
+                    "MemberRepositoryError",
+                    Description: $"Failed to associate user to role: {errors}"));
+            }
+
+            await _context.UserComplements.AddAsync(userComplements);
+            await _context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+
+            return Result<ApplicationAuthUser>.Success(user);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return Result<ApplicationAuthUser>.Failure(new Error(
+                "MemberRepositoryError",
+                Description: $"Erro inesperado ao criar usuário: {ex.Message}"));
+        }
     }
 
     public Task<ApplicationAuthUser?> RetrieveEntityByIdAsync(Guid id)

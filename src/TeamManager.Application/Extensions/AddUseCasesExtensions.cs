@@ -12,7 +12,7 @@ public static class AddUseCasesExtensions
 {
     public static IServiceCollection AddUseCases(this IServiceCollection services)
     {
-        services.AddScoped<IUseCase<RegisterTeamMember, ApplicationAuthUser>, RegisterTeamMemberUseCase>();
+        services.AddScoped<IUseCase<RegisterTeamMember, Result<ApplicationAuthUser>>, RegisterTeamMemberUseCase>();
         services.AddScoped<IUseCase<AuthBaseRequest, Result<(AuthResult, ApplicationAuthUser)>>, LoginTeamMemberUseCase>();
         
         services.AddScoped<RegisterTeamMemberUseCase>();

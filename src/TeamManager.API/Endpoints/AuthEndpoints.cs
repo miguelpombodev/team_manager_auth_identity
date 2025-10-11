@@ -22,12 +22,26 @@ public static class AuthEndpoints
                 [FromBody] RegisterTeamMember request,
                 RegisterTeamMemberUseCase useCase) =>
             {
-                var user = await useCase.ExecuteAsync(
+                var result = await useCase.ExecuteAsync(
                     request
                 );
+                
+                if (result.IsFailure)
+                {
+                    return Results.Problem(
+                        title: result.Error.Code,
+                        detail: result.Error.Description,
+                        statusCode: result.Error.StatusCode);
+                }
 
-                return Results.Ok(user);
-            });
+                return Results.Created();
+            })
+            .WithSummary("Register a new member")
+            .WithDescription(
+                "Tries to create a new member, if its email is not already taken")
+            .Produces<AuthResult>(StatusCodes.Status201Created)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapPost(
             "login",
