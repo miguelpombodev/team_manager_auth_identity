@@ -26,9 +26,11 @@ public class RegisterTeamMemberUseCase : IUseCase<RegisterTeamMember, Result<App
         if (tryToGetUser is not null)
         {
             _logger.LogCritical(
-                $"Code: {MembersErrors.MemberAlreadyRegistered.Code} - Description: {MembersErrors.MemberAlreadyRegistered.Description}"
+                "Code: {Code} - Description: {Description}",
+                MembersErrors.MemberAlreadyRegistered.Code,
+                MembersErrors.MemberAlreadyRegistered.Description
             );
-            
+
             return Result<ApplicationAuthUser>.Failure(MembersErrors.MemberAlreadyRegistered);
         }
 
@@ -41,19 +43,16 @@ public class RegisterTeamMemberUseCase : IUseCase<RegisterTeamMember, Result<App
         if (registerUserResult.IsFailure)
         {
             _logger.LogCritical(
-                $"Code: Member.RegistrationError - Description: {registerUserResult.Error.Description}"
+                "Code: Member.RegistrationError - Description: {Description}",
+                registerUserResult.Error.Description
             );
-            
+
             return Result<ApplicationAuthUser>.Failure(
-                new Error(
-                    "Member.RegistrationError",
-                    400,
-                    registerUserResult.Error.Description
-                ));
+                new Error("Member.RegistrationError", 400, registerUserResult.Error.Description));
         }
 
-        _logger.LogInformation($"New user has been registered. User email: {request.Email}");
-        
+        _logger.LogInformation("New user has been registered. User email: {UserEmail}", request.Email);
+
         return Result<ApplicationAuthUser>.Success(registerUserResult.Data!);
     }
 }
