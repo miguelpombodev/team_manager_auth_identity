@@ -26,7 +26,7 @@ builder.Services
     .AddOpenApi()
     .AddInfrastructureServices(configuration)
     .AddIdentitySetup()
-    .AddAuthenticationAndAuthorization()
+    .AddAuthenticationAndAuthorizationServices(configuration)
     .AddUseCases()
     .AddSwaggerGen();
 

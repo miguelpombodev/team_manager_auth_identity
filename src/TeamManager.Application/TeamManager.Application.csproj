@@ -19,6 +19,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+      <PackageReference Include="Microsoft.Extensions.Identity.Core"/>
+      <PackageReference Include="Microsoft.Extensions.Identity.Stores"/>
   </ItemGroup>
 
 </Project>

@@ -21,7 +21,7 @@ public class RegisterTeamMemberUseCase : IUseCase<RegisterTeamMember, Applicatio
 
         var userComplements = UserComplements.Build(request.FullName);
 
-        var registerUserResult = await _memberRepository.CreateAsync(user, userComplements);
+        var registerUserResult = await _memberRepository.CreateAsync(user, userComplements, request.Password);
 
         return registerUserResult;
     }

@@ -15,11 +15,11 @@ public class MemberRepository : IMemberRepository
         _context = context;
     }
     
-    public async Task<ApplicationAuthUser> CreateAsync(ApplicationAuthUser user, UserComplements userComplements)
+    public async Task<ApplicationAuthUser> CreateAsync(ApplicationAuthUser user, UserComplements userComplements, string userPassword)
     {
         using var transaction = await _context.Database.BeginTransactionAsync(); 
         
-        IdentityResult identityResult =  await _userManager.CreateAsync(user);
+        IdentityResult identityResult =  await _userManager.CreateAsync(user, userPassword);
         
         await _userManager.AddToRoleAsync(user, Roles.TeamMember);
 
@@ -34,6 +34,20 @@ public class MemberRepository : IMemberRepository
     public Task<ApplicationAuthUser?> RetrieveEntityByIdAsync(Guid id)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<ApplicationAuthUser?> RetrieveEntityByEmailAsync(string email)
+    {
+        var entity = await _userManager.FindByEmailAsync(email);
+
+        return entity;
+    }
+
+    public async Task<IList<string>> RetrieveMemberRolesByEntity(ApplicationAuthUser user)
+    {
+        var roles = await _userManager.GetRolesAsync(user);
+
+        return roles;
     }
 
     public Task UpdateEntityAsync(ApplicationAuthUser entity)

@@ -26,6 +26,7 @@ public static class IdentityService
                 options.Password.RequireNonAlphanumeric = true;
             })
             .AddRoles<IdentityRole<Guid>>()
+            .AddSignInManager<SignInManager<ApplicationAuthUser>>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
         
