@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using TeamManager.Application.Abstractions.Features;
 using TeamManager.Application.Abstractions.Requests.Auth;
 using TeamManager.Domain.Common.Abstraction;
@@ -10,12 +11,13 @@ namespace TeamManager.Application.Features.Auth;
 public class RegisterTeamMemberUseCase : IUseCase<RegisterTeamMember, Result<ApplicationAuthUser>>
 {
     private readonly IMemberRepository _memberRepository;
+    private readonly ILogger<RegisterTeamMemberUseCase> _logger;
 
-    public RegisterTeamMemberUseCase(IMemberRepository memberRepository)
+    public RegisterTeamMemberUseCase(IMemberRepository memberRepository, ILogger<RegisterTeamMemberUseCase> logger)
     {
         _memberRepository = memberRepository;
+        _logger = logger;
     }
-
 
     public async Task<Result<ApplicationAuthUser>> ExecuteAsync(RegisterTeamMember request)
     {
@@ -23,6 +25,10 @@ public class RegisterTeamMemberUseCase : IUseCase<RegisterTeamMember, Result<App
 
         if (tryToGetUser is not null)
         {
+            _logger.LogCritical(
+                $"Code: {MembersErrors.MemberAlreadyRegistered.Code} - Description: {MembersErrors.MemberAlreadyRegistered.Description}"
+            );
+            
             return Result<ApplicationAuthUser>.Failure(MembersErrors.MemberAlreadyRegistered);
         }
 
@@ -34,6 +40,10 @@ public class RegisterTeamMemberUseCase : IUseCase<RegisterTeamMember, Result<App
 
         if (registerUserResult.IsFailure)
         {
+            _logger.LogCritical(
+                $"Code: Member.RegistrationError - Description: {registerUserResult.Error.Description}"
+            );
+            
             return Result<ApplicationAuthUser>.Failure(
                 new Error(
                     "Member.RegistrationError",
@@ -42,6 +52,8 @@ public class RegisterTeamMemberUseCase : IUseCase<RegisterTeamMember, Result<App
                 ));
         }
 
+        _logger.LogInformation($"New user has been registered. User email: {request.Email}");
+        
         return Result<ApplicationAuthUser>.Success(registerUserResult.Data!);
     }
 }
