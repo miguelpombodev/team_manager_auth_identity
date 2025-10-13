@@ -21,6 +21,19 @@ public static class HealthChecksExtensions
                 tags: ["db", "data", "nosql"]
             );
 
+        services.AddHealthChecksUI(x =>
+            {
+                // Defines the interval to trigger the services verification
+                x.SetEvaluationTimeInSeconds(5);
+
+                // Defines a max registries value that will be allowed in history 
+                x.MaximumHistoryEntriesPerEndpoint(10);
+
+                // Defines the HealthCheck endpoint
+                x.AddHealthCheckEndpoint("HealthCheck Endpoint", "/api/health");
+            })
+            .AddInMemoryStorage();
+
         return services;
     }
 }

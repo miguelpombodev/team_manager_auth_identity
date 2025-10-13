@@ -59,15 +59,24 @@ if (app.Environment.IsDevelopment())
     }
 }
 
-app.UseHealthChecks("/api/health", new HealthCheckOptions()
-{
-    Predicate= _ => true,
-    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-});
+app.UseRouting();
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseHttpsRedirection();
+
+app.MapHealthChecks("/api/health", new HealthCheckOptions
+{
+    Predicate = _ => true,
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
+app.MapHealthChecksUI(x =>
+    {
+        x.UIPath = "/health-dashboard";
+    }
+);
 
 AuthEndpoints.MapEndpoint(app);
 
