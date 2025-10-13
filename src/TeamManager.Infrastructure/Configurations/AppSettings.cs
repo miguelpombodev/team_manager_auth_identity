@@ -27,6 +27,7 @@ public sealed class AppSettings
             var jwt = configuration.GetSection("Jwt").Get<JwtSettings>() ?? throw new InvalidOperationException("Missing Jwt configuration.");
             var connectionStrings = configuration.GetSection("ConnectionStrings").Get<ConnectionStringsSettings>() ?? throw new InvalidOperationException("Missing ConnectionStrings configuration.");
             var redisOptions = configuration.GetSection("Redis").Get<RedisSettings>() ?? throw new InvalidOperationException("Missing Redis configuration.");
+            IsDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Production";
 
             Validate(jwt);
             Validate(connectionStrings);
@@ -50,6 +51,7 @@ public sealed class AppSettings
         Validator.ValidateObject(instance, context, validateAllProperties: true);
     }
 
+    public static bool IsDevelopment { get; set; }
     public static string DatabaseConnectionString => Current.ConnectionStrings.DatabaseConnectionString;
     public static string RedisConnectionString => Current.ConnectionStrings.RedisConnectionString;
     public static string JwtSecret => Current.Jwt.Secret;
