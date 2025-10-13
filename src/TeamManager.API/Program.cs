@@ -1,3 +1,5 @@
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TeamManager.API.Endpoints;
@@ -28,6 +30,7 @@ builder.Services
     .AddIdentitySetup()
     .AddAuthenticationAndAuthorizationServices(configuration)
     .AddUseCases()
+    .AddHealthChecksServices(configuration)
     .AddSwaggerGen();
 
 var app = builder.Build();
@@ -55,6 +58,12 @@ if (app.Environment.IsDevelopment())
         await roleManager.CreateAsync(new IdentityRole<Guid>(Roles.TeamMember));
     }
 }
+
+app.UseHealthChecks("/api/health", new HealthCheckOptions()
+{
+    Predicate= _ => true,
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
 app.UseAuthentication();
 app.UseAuthorization();
