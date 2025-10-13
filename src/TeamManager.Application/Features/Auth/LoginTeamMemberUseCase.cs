@@ -35,8 +35,9 @@ public class LoginTeamMemberUseCase : IUseCase<AuthBaseRequest, Result<(AuthResu
         var roles = await _memberRepository.RetrieveMemberRolesByEntity(user);
 
         var accessToken = _tokenProvider.Create(user, roles);
+        var refreshToken = _tokenProvider.CreateRefreshToken();
         
-        var auth = AuthResult.Create(accessToken, "000000");
+        var auth = AuthResult.Create(accessToken, refreshToken);
 
         return Result<(AuthResult, ApplicationAuthUser)>.Success(data: (auth, user));
     }

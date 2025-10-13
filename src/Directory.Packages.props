@@ -19,6 +19,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageVersion>
+    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.9" />
     <PackageVersion Include="Microsoft.Extensions.Identity.Core" Version="9.0.9" />
     <PackageVersion Include="Microsoft.Extensions.Identity.Stores" Version="9.0.9" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
@@ -33,6 +34,7 @@
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.15.0.120848" />
     <PackageVersion Include="SonarAnalyzer.CSharp.Styling" Version="10.15.0.120848" />
+    <PackageVersion Include="StackExchange.Redis" Version="2.9.32" />
     <PackageVersion Include="Swashbuckle.AspNetCore.Swagger" Version="9.0.6" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.6" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.6" />

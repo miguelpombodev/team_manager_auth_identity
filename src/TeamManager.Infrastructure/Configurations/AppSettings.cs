@@ -10,6 +10,7 @@ public sealed class AppSettings
 
     public JwtSettings Jwt { get; init; } = new();
     public ConnectionStringsSettings ConnectionStrings { get; init; } = new();
+    public RedisSettings RedisSettings { get; init; } = new();
 
     private AppSettings() { }
 
@@ -25,14 +26,17 @@ public sealed class AppSettings
 
             var jwt = configuration.GetSection("Jwt").Get<JwtSettings>() ?? throw new InvalidOperationException("Missing Jwt configuration.");
             var connectionStrings = configuration.GetSection("ConnectionStrings").Get<ConnectionStringsSettings>() ?? throw new InvalidOperationException("Missing ConnectionStrings configuration.");
+            var redisOptions = configuration.GetSection("Redis").Get<RedisSettings>() ?? throw new InvalidOperationException("Missing Redis configuration.");
 
             Validate(jwt);
             Validate(connectionStrings);
+            Validate(redisOptions);
 
             _instance = new AppSettings
             {
                 Jwt = jwt,
-                ConnectionStrings = connectionStrings
+                ConnectionStrings = connectionStrings,
+                RedisSettings = redisOptions
             };
         }
     }
@@ -52,6 +56,7 @@ public sealed class AppSettings
     public static string JwtIssuer => Current.Jwt.Issuer;
     public static string JwtAudience => Current.Jwt.Audience;
     public static int JwtExpirationInMinutes => Current.Jwt.ExpirationInMinutes;
+    public static string RedisInstanceName => Current.RedisSettings.RedisInstanceName;
 }
 
 public class JwtSettings
@@ -66,4 +71,9 @@ public class ConnectionStringsSettings
 {
     [Required] public string DatabaseConnectionString { get; set; } = string.Empty;
     [Required] public string RedisConnectionString { get; set; } = string.Empty;
+}
+
+public class RedisSettings
+{
+    [Required] public string RedisInstanceName { get; set; } = string.Empty;
 }

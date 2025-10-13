@@ -1,5 +1,8 @@
+using System.Security.Claims;
 using System.Text;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using TeamManager.Domain.Entities;
 using TeamManager.Infrastructure.Configurations;
 
 namespace TeamManager.Infrastructure.Providers.Security;
@@ -40,6 +43,27 @@ public class Jwt
             ValidIssuer = AppSettings.JwtIssuer,
             ValidAudience = AppSettings.JwtAudience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AppSettings.JwtSecret))
+        };
+    }
+    
+    public SecurityTokenDescriptor BuildTokenDescriptor(SigningCredentials credentials, ApplicationAuthUser user, IList<string> roles)
+    {
+        List<Claim> claims = [
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            ..roles.Select(x => new Claim(ClaimTypes.Role, x))
+        ];
+        
+        var now = DateTime.UtcNow;
+
+        return new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            NotBefore = now.AddSeconds(-30),
+            Expires = now.AddMinutes(AppSettings.JwtExpirationInMinutes),
+            SigningCredentials = credentials,
+            Issuer = AppSettings.JwtIssuer,
+            Audience = AppSettings.JwtAudience,
         };
     }
 }
