@@ -1,3 +1,4 @@
+using TeamManager.Infrastructure.Configurations;
 using TeamManager.Infrastructure.Persistence;
 
 namespace TeamManager.API.Extensions;
@@ -5,18 +6,17 @@ namespace TeamManager.API.Extensions;
 public static class HealthChecksExtensions
 {
     public static IServiceCollection AddHealthChecksServices(
-        this IServiceCollection services,
-        IConfiguration configuration
+        this IServiceCollection services
     )
     {
         services.AddHealthChecks()
             .AddNpgSql(
-                connectionString: configuration.GetConnectionString("TeamManager")!,
+                connectionString: AppSettings.DatabaseConnectionString,
                 name: "Team Manager PostgreSQL DB instance",
                 tags: ["db", "data", "sql"]
             )
             .AddRedis(
-                configuration.GetConnectionString("RedisConnection")!,
+                AppSettings.RedisConnectionString,
                 name: "Team Manager Redis instance",
                 tags: ["db", "data", "nosql"]
             );

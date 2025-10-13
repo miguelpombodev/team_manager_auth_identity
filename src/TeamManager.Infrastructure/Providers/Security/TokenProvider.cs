@@ -5,9 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Providers.Authentication.Abstractions;
-using TeamManager.Domain.Providers.Authentication.Entities;
 
-namespace TeamManager.Infrastructure.Providers;
+namespace TeamManager.Infrastructure.Providers.Security;
 
 public class TokenProvider : ITokenProvider
 {
@@ -21,13 +20,10 @@ public class TokenProvider : ITokenProvider
     
     public TokenProvider(IConfiguration configuration)
     {
-        var jwtConfigurationDict =
-            configuration.GetSection("Jwt").GetChildren().ToDictionary(x => x.Key, x => x.Value);
-
         // _redis = redis.GetDatabase();
 
-        _jwt = Jwt.Create(jwtConfigurationDict);
-        _validationParameters = BuildTokenValidationParameters(jwtConfigurationDict);
+        _jwt = Jwt.Create();
+        _validationParameters = _jwt.BuildTokenValidationParameters();
     }
     
     public string Create(ApplicationAuthUser user, IList<string> roles)
@@ -66,20 +62,6 @@ public class TokenProvider : ITokenProvider
             SigningCredentials = credentials,
             Issuer = _jwt.Issuer,
             Audience = _jwt.Audience,
-        };
-    }
-    
-    private TokenValidationParameters BuildTokenValidationParameters(Dictionary<string, string?> jwtConfiguration)
-    {
-        return new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = jwtConfiguration["Issuer"],
-            ValidAudience = jwtConfiguration["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfiguration["Secret"]!))
         };
     }
 }

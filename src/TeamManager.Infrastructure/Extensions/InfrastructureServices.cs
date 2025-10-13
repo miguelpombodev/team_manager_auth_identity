@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Scrutor;
 using TeamManager.Domain.Providers.Authentication.Abstractions;
+using TeamManager.Infrastructure.Configurations;
 using TeamManager.Infrastructure.Persistence;
 using TeamManager.Infrastructure.Providers;
 
@@ -10,11 +11,10 @@ namespace TeamManager.Infrastructure.Extensions;
 
 public static class InfrastructureServices
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
-        services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("TeamManager")));
-        
+        services.AddDbContext<ApplicationDbContext>(x => x.UseNpgsql(AppSettings.DatabaseConnectionString));
+
         services.Scan(x => x.FromAssemblies(
                 Infrastructure.AssemblyReference.Assembly
             )

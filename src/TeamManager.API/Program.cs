@@ -26,11 +26,12 @@ builder.Host.ConfigureSerilog();
 
 builder.Services
     .AddOpenApi()
-    .AddInfrastructureServices(configuration)
+    .AddAppConfiguration(configuration)
+    .AddInfrastructureServices()
     .AddIdentitySetup()
-    .AddAuthenticationAndAuthorizationServices(configuration)
+    .AddAuthenticationAndAuthorizationServices()
     .AddUseCases()
-    .AddHealthChecksServices(configuration)
+    .AddHealthChecksServices()
     .AddSwaggerGen();
 
 var app = builder.Build();

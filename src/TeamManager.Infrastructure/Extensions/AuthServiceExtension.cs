@@ -7,14 +7,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using TeamManager.Domain.Providers.Authentication.Abstractions;
+using TeamManager.Infrastructure.Configurations;
 using TeamManager.Infrastructure.Providers;
+using TeamManager.Infrastructure.Providers.Security;
 
 namespace TeamManager.Infrastructure.Extensions;
 
 public static class AuthServiceExtension
 {
-    public static IServiceCollection AddAuthenticationAndAuthorizationServices(this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddAuthenticationAndAuthorizationServices(this IServiceCollection services)
     {
         services.AddScoped<ITokenProvider, TokenProvider>();
 
@@ -42,9 +43,9 @@ public static class AuthServiceExtension
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["Jwt:Issuer"],
-                    ValidAudience = configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]!))
+                    ValidIssuer = AppSettings.JwtIssuer,
+                    ValidAudience = AppSettings.JwtAudience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AppSettings.JwtSecret))
                 };
 
                 options.Events = new JwtBearerEvents
