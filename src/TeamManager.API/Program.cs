@@ -31,6 +31,7 @@ builder.Services
     .AddIdentitySetup()
     .AddAuthenticationAndAuthorizationServices()
     .AddUseCases()
+    .AddValidators()
     .AddHealthChecksServices()
     .AddSwaggerGen();
 

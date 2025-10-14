@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TeamManager.Application.Abstractions.Requests.Auth;
@@ -47,10 +48,24 @@ public static class AuthEndpoints
             "login",
             async (
                 [FromBody] AuthBaseRequest request,
+                IValidator<AuthBaseRequest> validator,
                 LoginTeamMemberUseCase useCase,
                 SignInManager<ApplicationAuthUser> signInManager,
                 UserManager<ApplicationAuthUser> userManager) =>
             {
+                var validationResult = await validator.ValidateAsync(request);
+
+                if (!validationResult.IsValid)
+                {
+                    var errors = validationResult.Errors.Select(e => new
+                    {
+                        Field = e.PropertyName,
+                        Error = e.ErrorMessage
+                    });
+
+                    return Results.BadRequest(new { Errors = errors });
+                }
+                
                 var result = await useCase.ExecuteAsync(request);
 
                 if (result.IsFailure)
@@ -70,6 +85,7 @@ public static class AuthEndpoints
 
                 return Results.Ok(result.Data.Item1);
             })
+            .AddEndpointFilter<ValidationFilter<AuthBaseRequest>>()
             .WithSummary("Login Member and return a cookie")
             .WithDescription(
                 "Tries to login a possible member, if successful return a token access and a refresh token, and also set a cookie")
