@@ -11,6 +11,7 @@ public sealed class AppSettings
     public JwtSettings Jwt { get; init; } = new();
     public ConnectionStringsSettings ConnectionStrings { get; init; } = new();
     public RedisSettings RedisSettings { get; init; } = new();
+    public RabbitMqSettings RabbitMqSettings { get; init; } = new();
 
     private AppSettings() { }
 
@@ -27,17 +28,20 @@ public sealed class AppSettings
             var jwt = configuration.GetSection("Jwt").Get<JwtSettings>() ?? throw new InvalidOperationException("Missing Jwt configuration.");
             var connectionStrings = configuration.GetSection("ConnectionStrings").Get<ConnectionStringsSettings>() ?? throw new InvalidOperationException("Missing ConnectionStrings configuration.");
             var redisOptions = configuration.GetSection("Redis").Get<RedisSettings>() ?? throw new InvalidOperationException("Missing Redis configuration.");
+            var rabbitMqOptions = configuration.GetSection("RabbitMqSettings").Get<RabbitMqSettings>() ?? throw new InvalidOperationException("Missing RabbitMQ configuration.");
             IsDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Production";
 
             Validate(jwt);
             Validate(connectionStrings);
             Validate(redisOptions);
+            Validate(rabbitMqOptions);
 
             _instance = new AppSettings
             {
                 Jwt = jwt,
                 ConnectionStrings = connectionStrings,
-                RedisSettings = redisOptions
+                RedisSettings = redisOptions,
+                RabbitMqSettings = rabbitMqOptions
             };
         }
     }
@@ -59,6 +63,10 @@ public sealed class AppSettings
     public static string JwtAudience => Current.Jwt.Audience;
     public static int JwtExpirationInMinutes => Current.Jwt.ExpirationInMinutes;
     public static string RedisInstanceName => Current.RedisSettings.RedisInstanceName;
+    public static string RabbitMqHostName => Current.RabbitMqSettings.RabbitMqHostName;
+    public static int RabbitMqPort => Current.RabbitMqSettings.RabbitMqPort;
+    public static string RabbitMqUserName => Current.RabbitMqSettings.RabbitMqUserName;
+    public static string RabbitMqPassword => Current.RabbitMqSettings.RabbitMqPassword;
 }
 
 public class JwtSettings
@@ -78,4 +86,13 @@ public class ConnectionStringsSettings
 public class RedisSettings
 {
     [Required] public string RedisInstanceName { get; set; } = string.Empty;
+}
+
+public class RabbitMqSettings
+{
+    [Required] public string RabbitMqHostName { get; set; } = string.Empty;
+    [Required] public int RabbitMqPort { get; set; }
+    [Required] public string RabbitMqUserName { get; set; } = string.Empty;
+    [Required] public string RabbitMqPassword { get; set; } = string.Empty;
+    
 }

@@ -27,7 +27,28 @@ services:
     container_name: team_manager_redis
     networks:
       - tm_net
-    command:  redis-server --requirepass TeamManagerRedis123!
+    command: redis-server --requirepass TeamManagerRedis123!
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: team_manager_rabbitmq_broker_management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - tm_net
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+  email_sender:
+    image: wallghost/email-sender-subscriber:latest
+    container_name: team_manager_email_sender
+    networks:
+      - tm_net
+    restart: on-failure
+    depends_on:
+      - rabbitmq
 
 networks:
   tm_net:
@@ -35,3 +56,5 @@ networks:
 
 volumes:
   pgdata:
+  rabbitmq_data:
+    

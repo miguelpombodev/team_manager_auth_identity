@@ -21,6 +21,7 @@
         <PackageReference Include="Microsoft.Extensions.Identity.Stores"/>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
         <PackageReference Include="Scrutor" />
+        <PackageReference Include="RabbitMQ.Client"/>
         <PackageReference Include="SonarAnalyzer.CSharp">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
