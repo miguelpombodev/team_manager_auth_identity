@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
+using TeamManager.Domain.Common.Abstraction.Communication;
 using TeamManager.Infrastructure.Configurations;
 using TeamManager.Infrastructure.Providers.Communication.Interfaces;
 

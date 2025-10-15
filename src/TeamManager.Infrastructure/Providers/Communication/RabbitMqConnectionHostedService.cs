@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Hosting;
+using TeamManager.Domain.Common.Abstraction.Communication;
 using TeamManager.Infrastructure.Providers.Communication.Interfaces;
 
 namespace TeamManager.Infrastructure.Providers.Communication;

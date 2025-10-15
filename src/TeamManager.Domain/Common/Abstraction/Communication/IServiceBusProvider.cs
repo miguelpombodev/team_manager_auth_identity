@@ -1,6 +1,7 @@
 using RoyalRent.Domain.Common.Entities;
+using TeamManager.Domain.Providers.Communication;
 
-namespace TeamManager.Infrastructure.Providers.Communication.Interfaces;
+namespace TeamManager.Domain.Common.Abstraction.Communication;
 
 public interface IServiceBusProvider
 {

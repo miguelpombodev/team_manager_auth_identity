@@ -2,8 +2,10 @@ using Microsoft.Extensions.Logging;
 using TeamManager.Application.Abstractions.Features;
 using TeamManager.Application.Abstractions.Requests.Auth;
 using TeamManager.Domain.Common.Abstraction;
+using TeamManager.Domain.Common.Abstraction.Communication;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Members.Abstractions;
+using TeamManager.Domain.Members.Entities;
 using TeamManager.Domain.Members.Errors;
 
 namespace TeamManager.Application.Features.Auth;
@@ -12,11 +14,17 @@ public class RegisterTeamMemberUseCase : IUseCase<RegisterTeamMember, Result<App
 {
     private readonly IMemberRepository _memberRepository;
     private readonly ILogger<RegisterTeamMemberUseCase> _logger;
+    private readonly IServiceBusProvider _serviceBusProvider;
 
-    public RegisterTeamMemberUseCase(IMemberRepository memberRepository, ILogger<RegisterTeamMemberUseCase> logger)
+    public RegisterTeamMemberUseCase(
+        IMemberRepository memberRepository, 
+        ILogger<RegisterTeamMemberUseCase> logger,
+        IServiceBusProvider serviceBusProvider
+        )
     {
         _memberRepository = memberRepository;
         _logger = logger;
+        _serviceBusProvider = serviceBusProvider;
     }
 
     public async Task<Result<ApplicationAuthUser>> ExecuteAsync(RegisterTeamMember request)
@@ -52,6 +60,11 @@ public class RegisterTeamMemberUseCase : IUseCase<RegisterTeamMember, Result<App
         }
 
         _logger.LogInformation("New user has been registered. User email: {UserEmail}", request.Email);
+        
+        // Create factory for member notification
+        var memberRegisteredEmailNotification = new MemberCreatedEmailNotification(request.Email);
+
+        await _serviceBusProvider.SendMessage(memberRegisteredEmailNotification);
 
         return Result<ApplicationAuthUser>.Success(registerUserResult.Data!);
     }

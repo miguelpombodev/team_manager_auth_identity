@@ -5,6 +5,7 @@ using Scrutor;
 using TeamManager.Infrastructure.Configurations;
 using TeamManager.Infrastructure.Persistence;
 using StackExchange.Redis;
+using TeamManager.Domain.Common.Abstraction.Communication;
 using TeamManager.Domain.Providers.Cache;
 using TeamManager.Infrastructure.Providers.Cache;
 using TeamManager.Infrastructure.Providers.Communication;

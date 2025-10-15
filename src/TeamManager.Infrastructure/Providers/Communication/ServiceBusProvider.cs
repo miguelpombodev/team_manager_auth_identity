@@ -2,18 +2,14 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using RoyalRent.Domain.Common.Entities;
+using TeamManager.Domain.Common.Abstraction.Communication;
+using TeamManager.Domain.Providers.Communication;
 using TeamManager.Infrastructure.Providers.Communication.Interfaces;
 
 namespace TeamManager.Infrastructure.Providers.Communication;
 
 public class ServiceBusProvider : IServiceBusProvider
 {
-    public ServiceBusProvider(ILogger<ServiceBusProvider> logger, IRabbitMqConnection connection)
-    {
-        _logger = logger;
-        _connection = connection;
-    }
-
     private readonly ILogger<ServiceBusProvider> _logger;
 
     private readonly IRabbitMqConnection _connection;
@@ -26,17 +22,27 @@ public class ServiceBusProvider : IServiceBusProvider
         Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds()),
     };
 
+    public ServiceBusProvider(ILogger<ServiceBusProvider> logger, IRabbitMqConnection connection)
+    {
+        _logger = logger;
+        _connection = connection;
+    }
+
     public async Task<ServiceBusSendMessageResult> SendMessage(ServiceBusNotification notification)
     {
         try
         {
             await using var channelAsync = await _connection.CreateChannelAsync();
+            
+            await channelAsync.BasicPublishAsync(
+                exchange: notification.ExchangeName,
+                routingKey: notification.RoutingKeyName,
+                true,
+                basicProperties: _props,
+                body: notification.Body);
 
-            await channelAsync.QueueDeclareAsync(notification.QueueName, true, false, false, null);
-
-            await channelAsync.BasicPublishAsync(exchange: notification.ExchangeName,
-                routingKey: notification.RoutingKeyName, true, basicProperties: _props, body: notification.Body);
-            _logger.LogInformation("Email Notification was send at {SendDateTime} to queue {QueueName}",
+            _logger.LogInformation(
+                "Email Notification was send at {SendDateTime} to queue {QueueName}",
                 DateTime.UtcNow,
                 notification.QueueName);
 
@@ -44,7 +50,9 @@ public class ServiceBusProvider : IServiceBusProvider
         }
         catch (BrokerUnreachableException exc)
         {
-            _logger.LogError(exc, "Host name {ConnectionFactoryHostName} could be reach, please check connection",
+            _logger.LogError(
+                exc,
+                "Host name {ConnectionFactoryHostName} could be reach, please check connection",
                 _connection);
 
             return new ServiceBusSendMessageResult { Message = $"Broker unreachable: {exc.Message}" };

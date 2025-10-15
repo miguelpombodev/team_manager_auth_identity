@@ -19,6 +19,7 @@
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
         <PackageReference Include="Microsoft.Extensions.Identity.Core"/>
         <PackageReference Include="Microsoft.Extensions.Identity.Stores"/>
+        <PackageReference Include="Newtonsoft.Json" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
         <PackageReference Include="Scrutor" />
         <PackageReference Include="RabbitMQ.Client"/>
