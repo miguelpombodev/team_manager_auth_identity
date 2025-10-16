@@ -50,7 +50,29 @@ public class Jwt
     {
         List<Claim> claims = [
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
+            ..roles.Select(x => new Claim(ClaimTypes.Role, x))
+        ];
+        
+        var now = DateTime.UtcNow;
+
+        return new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            NotBefore = now.AddSeconds(-30),
+            Expires = now.AddMinutes(AppSettings.JwtExpirationInMinutes),
+            SigningCredentials = credentials,
+            Issuer = AppSettings.JwtIssuer,
+            Audience = AppSettings.JwtAudience,
+        };
+    }
+    
+    public SecurityTokenDescriptor BuildTokenDescriptor(SigningCredentials credentials, ApplicationAuthUser user, IList<string> roles, List<UserTeam> userTeams)
+    {
+        List<Claim> claims = [
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
+            ..userTeams.Select(x => new Claim(ClaimValueTypes.String, x.TeamId.ToString())),
             ..roles.Select(x => new Claim(ClaimTypes.Role, x))
         ];
         

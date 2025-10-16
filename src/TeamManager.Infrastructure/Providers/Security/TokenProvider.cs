@@ -15,33 +15,35 @@ namespace TeamManager.Infrastructure.Providers.Security;
 public class TokenProvider : ITokenProvider
 {
     private const string RedisRefreshTokenPrefix = "refresh_token:";
-    
+
     private readonly JwtSecurityTokenHandler _handler = new();
     private readonly IDatabase _redis;
 
     private readonly TokenValidationParameters _validationParameters;
 
     private readonly Jwt _jwt;
-    
-    public TokenProvider( IConnectionMultiplexer redis)
+
+    public TokenProvider(IConnectionMultiplexer redis)
     {
         _redis = redis.GetDatabase();
 
         _jwt = Jwt.Create();
         _validationParameters = _jwt.BuildTokenValidationParameters();
     }
-    
-    public string Create(ApplicationAuthUser user, IList<string> roles)
+
+    public string Create(ApplicationAuthUser user, IList<string> roles, List<UserTeam>? userTeams)
     {
         var credentials = BuildCredentials();
 
-        var tokenDescriptor = _jwt.BuildTokenDescriptor(credentials, user, roles);
+        var tokenDescriptor = userTeams is null
+            ? _jwt.BuildTokenDescriptor(credentials, user, roles)
+            : _jwt.BuildTokenDescriptor(credentials, user, roles, userTeams);
 
         var token = _handler.CreateToken(tokenDescriptor);
 
         return _handler.WriteToken(token);
     }
-    
+
     public string CreateRefreshToken()
     {
         var randomBytes = new byte[64];
@@ -78,7 +80,7 @@ public class TokenProvider : ITokenProvider
 
         return result;
     }
-    
+
     private SigningCredentials BuildCredentials()
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Secret));

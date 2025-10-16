@@ -13,14 +13,21 @@ namespace TeamManager.Application.Features.Auth;
 public class LoginTeamMemberUseCase : IUseCase<AuthBaseRequest, Result<(AuthResult, ApplicationAuthUser)>>
 {
     private readonly IMemberRepository _memberRepository;
+    private readonly ITeamRepository _teamRepository;
     private readonly UserManager<ApplicationAuthUser> _userManager;
     private readonly ITokenProvider _tokenProvider;
 
-    public LoginTeamMemberUseCase(IMemberRepository memberRepository, ITokenProvider tokenProvider, UserManager<ApplicationAuthUser> userManager)
+    public LoginTeamMemberUseCase(
+        IMemberRepository memberRepository,
+        ITokenProvider tokenProvider,
+        UserManager<ApplicationAuthUser> userManager,
+        ITeamRepository teamRepository
+    )
     {
         _memberRepository = memberRepository;
         _tokenProvider = tokenProvider;
         _userManager = userManager;
+        _teamRepository = teamRepository;
     }
 
     public async Task<Result<(AuthResult, ApplicationAuthUser)>> ExecuteAsync(AuthBaseRequest request)
@@ -31,12 +38,14 @@ public class LoginTeamMemberUseCase : IUseCase<AuthBaseRequest, Result<(AuthResu
         {
             return Result<(AuthResult, ApplicationAuthUser)>.Failure(AuthenticationErrors.UserAccountNotFound);
         }
-        
+
+        var userTeamsIds = await _teamRepository.RetrieveTeamsByMemberIdAsync(user.Id);
+
         var roles = await _memberRepository.RetrieveMemberRolesByEntity(user);
 
-        var accessToken = _tokenProvider.Create(user, roles);
+        var accessToken = _tokenProvider.Create(user, roles, userTeamsIds);
         var refreshToken = _tokenProvider.CreateRefreshToken();
-        
+
         var auth = AuthResult.Create(accessToken, refreshToken);
 
         return Result<(AuthResult, ApplicationAuthUser)>.Success(data: (auth, user));

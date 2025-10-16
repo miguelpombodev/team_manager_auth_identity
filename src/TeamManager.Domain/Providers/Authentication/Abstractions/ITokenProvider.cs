@@ -5,7 +5,7 @@ namespace TeamManager.Domain.Providers.Authentication.Abstractions;
 
 public interface ITokenProvider
 {
-    string Create(ApplicationAuthUser user, IList<string> roles);
+    string Create(ApplicationAuthUser user, IList<string> roles, List<UserTeam>? userTeams);
     string CreateRefreshToken();
     Task<bool> ReplaceRefreshTokenAsync(Guid userId, string newRefreshToken);
     Task<Result<Guid>> ValidateRefreshTokenAsync(string refreshToken);
