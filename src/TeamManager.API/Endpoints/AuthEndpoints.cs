@@ -37,6 +37,7 @@ public static class AuthEndpoints
 
                 return Results.Created();
             })
+            .AddEndpointFilter<ValidationFilter<RegisterTeamMember>>()
             .WithSummary("Register a new member")
             .WithDescription(
                 "Tries to create a new member, if its email is not already taken")
