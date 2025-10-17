@@ -86,7 +86,7 @@ public class ApplicationUserMappingConfiguration : IEntityTypeConfiguration<Appl
             .HasColumnName("AccessFailedCount")
             .HasColumnType("INT4")
             .IsRequired();
-
+        
         builder.HasIndex(au => new { au.Id, au.Email, au.UserName, au.NormalizedUserName, au.NormalizedEmail })
             .IsUnique();
     }

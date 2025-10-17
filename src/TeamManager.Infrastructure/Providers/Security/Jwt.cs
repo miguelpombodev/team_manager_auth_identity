@@ -1,8 +1,10 @@
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using TeamManager.Domain.Entities;
+using TeamManager.Domain.Members.Entities;
 using TeamManager.Infrastructure.Configurations;
 
 namespace TeamManager.Infrastructure.Providers.Security;
@@ -46,12 +48,12 @@ public class Jwt
         };
     }
     
-    public SecurityTokenDescriptor BuildTokenDescriptor(SigningCredentials credentials, ApplicationAuthUser user, IList<string> roles)
+    public SecurityTokenDescriptor BuildTokenDescriptor(SigningCredentials credentials, ApplicationAuthUser user, IList<UserTeamRoleDto> userTeamRoleDto)
     {
         List<Claim> claims = [
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-            ..roles.Select(x => new Claim(ClaimTypes.Role, x))
+            ..userTeamRoleDto.Select(x => new Claim("TeamsRole", JsonSerializer.Serialize(x)))
         ];
         
         var now = DateTime.UtcNow;

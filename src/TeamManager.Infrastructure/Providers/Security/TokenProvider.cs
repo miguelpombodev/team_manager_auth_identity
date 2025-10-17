@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using TeamManager.Domain.Common.Abstraction;
 using TeamManager.Domain.Entities;
+using TeamManager.Domain.Members.Entities;
 using TeamManager.Domain.Members.Errors;
 using TeamManager.Domain.Providers.Authentication.Abstractions;
 
@@ -31,13 +32,11 @@ public class TokenProvider : ITokenProvider
         _validationParameters = _jwt.BuildTokenValidationParameters();
     }
 
-    public string Create(ApplicationAuthUser user, IList<string> roles, List<UserTeam>? userTeams)
+    public string Create(ApplicationAuthUser user, IList<UserTeamRoleDto> userTeamRoleDto)
     {
         var credentials = BuildCredentials();
 
-        var tokenDescriptor = userTeams is null
-            ? _jwt.BuildTokenDescriptor(credentials, user, roles)
-            : _jwt.BuildTokenDescriptor(credentials, user, roles, userTeams);
+        var tokenDescriptor = _jwt.BuildTokenDescriptor(credentials, user, userTeamRoleDto);
 
         var token = _handler.CreateToken(tokenDescriptor);
 

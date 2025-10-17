@@ -38,12 +38,10 @@ public class LoginTeamMemberUseCase : IUseCase<AuthBaseRequest, Result<(AuthResu
         {
             return Result<(AuthResult, ApplicationAuthUser)>.Failure(AuthenticationErrors.UserAccountNotFound);
         }
+        
+        var userTeamRole = await _memberRepository.RetrieveTeamMemberRolesByEntity(user);
 
-        var userTeamsIds = await _teamRepository.RetrieveTeamsByMemberIdAsync(user.Id);
-
-        var roles = await _memberRepository.RetrieveMemberRolesByEntity(user);
-
-        var accessToken = _tokenProvider.Create(user, roles, userTeamsIds);
+        var accessToken = _tokenProvider.Create(user, userTeamRole);
         var refreshToken = _tokenProvider.CreateRefreshToken();
 
         var auth = AuthResult.Create(accessToken, refreshToken);

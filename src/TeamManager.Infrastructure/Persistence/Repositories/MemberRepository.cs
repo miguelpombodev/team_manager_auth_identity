@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TeamManager.Domain.Common.Abstraction;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Members.Abstractions;
+using TeamManager.Domain.Members.Entities;
 
 namespace TeamManager.Infrastructure.Persistence.Repositories;
 
@@ -72,9 +74,14 @@ public class MemberRepository : IMemberRepository
         return entity;
     }
 
-    public async Task<IList<string>> RetrieveMemberRolesByEntity(ApplicationAuthUser user)
+    public async Task<IList<UserTeamRoleDto>> RetrieveTeamMemberRolesByEntity(ApplicationAuthUser user)
     {
-        var roles = await _userManager.GetRolesAsync(user);
+        var roles = await _context.Users.Where(u => u.Id.Equals(user.Id)).SelectMany(u => u.UserTeams.Select(ut => new
+        {
+            TeamId = ut.Team.Id,
+            TeamName = ut.Team.Name,
+            Roles = u.UserRoles.Select(ur => ur.Name)
+        })).Select(x => new UserTeamRoleDto(x.TeamId, x.Roles)).ToListAsync();
 
         return roles;
     }
