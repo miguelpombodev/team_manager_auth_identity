@@ -1,7 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using TeamManager.Application.Abstractions.Features;
 using TeamManager.Application.Abstractions.Requests.Auth;
+using TeamManager.Application.Abstractions.Requests.Teams;
 using TeamManager.Application.Features.Auth;
+using TeamManager.Application.Features.Teams;
 using TeamManager.Domain.Common.Abstraction;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Providers.Authentication.Entities;
@@ -14,9 +16,11 @@ public static class AddUseCasesExtensions
     {
         services.AddScoped<IUseCase<RegisterTeamMember, Result<ApplicationAuthUser>>, RegisterTeamMemberUseCase>();
         services.AddScoped<IUseCase<AuthBaseRequest, Result<(AuthResult, ApplicationAuthUser)>>, LoginTeamMemberUseCase>();
+        services.AddScoped<IUseCase<RegisterTeam, Result<Team>>, RegisterTeamUseCase>();
         
         services.AddScoped<RegisterTeamMemberUseCase>();
         services.AddScoped<LoginTeamMemberUseCase>();
+        services.AddScoped<RegisterTeamUseCase>();
         
         return services;
     }

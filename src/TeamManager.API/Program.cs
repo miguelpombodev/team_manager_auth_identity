@@ -80,6 +80,7 @@ app.MapHealthChecksUI(x =>
     }
 );
 
-AuthEndpoints.MapEndpoint(app);
+AuthEndpoints.MapEndpoints(app);
+TeamsEndpoints.MapEndpoints(app);
 
 await app.RunAsync();

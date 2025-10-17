@@ -13,7 +13,7 @@ public static class AuthEndpoints
     private const string LoginProvider = "TeamManager";
     private const string TokenName = "refresh_token";
 
-    public static void MapEndpoint(IEndpointRouteBuilder app)
+    public static void MapEndpoints(IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("auth").WithTags("Auth");
 

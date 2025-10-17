@@ -19,4 +19,13 @@ public class TeamRepository : ITeamRepository
 
         return teams;
     }
+
+    public async Task<Team> Create(Team team)
+    {
+        var entity = await _context.Teams.AddAsync(team);
+
+        await _context.SaveChangesAsync();
+        
+        return entity.Entity;
+    }
 }
