@@ -49,6 +49,11 @@ if (app.Environment.IsDevelopment())
     await dbContext.Database.MigrateAsync();
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+    
+    if (!await roleManager.RoleExistsAsync(Roles.SystemAdmin))
+    {
+        await roleManager.CreateAsync(new IdentityRole<Guid>(Roles.SystemAdmin));
+    }
 
     if (!await roleManager.RoleExistsAsync(Roles.TeamLeader))
     {

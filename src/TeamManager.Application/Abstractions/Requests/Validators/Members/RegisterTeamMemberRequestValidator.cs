@@ -6,7 +6,7 @@ namespace TeamManager.Application.Abstractions.Requests.Validators.Members;
 
 public class RegisterTeamMemberRequestValidator : AbstractValidator<RegisterTeamMember>
 {
-    private const string AvoidSpecialCharactersInFullName = "@\"^(?!'+$)[a-zA-Z']+(?:\\s+[a-zA-Z']+)*$\"";
+    private const string AvoidSpecialCharactersInFullName = "^(?!'+$)[a-zA-Z\\s']+$";
     
     public RegisterTeamMemberRequestValidator()
     {
@@ -16,5 +16,6 @@ public class RegisterTeamMemberRequestValidator : AbstractValidator<RegisterTeam
             .WithMessage("Fullname field cannot be null")
             .Matches(AvoidSpecialCharactersInFullName)
             .WithMessage("Fullname is invalid");
+
     }
 }
