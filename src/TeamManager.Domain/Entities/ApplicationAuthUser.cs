@@ -7,6 +7,8 @@ public class ApplicationAuthUser : IdentityUser<Guid>
     public ICollection<UserTeam> UserTeams { get; set; } = new List<UserTeam>();
     public ICollection<IdentityRole<Guid>> UserRoles { get; set; } = new List<IdentityRole<Guid>>();
 
+    public UserComplements UserComplements { get; set; }
+
     public static ApplicationAuthUser Build(string email, string fullName)
     {
         if (string.IsNullOrWhiteSpace(email))

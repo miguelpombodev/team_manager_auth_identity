@@ -30,6 +30,7 @@ builder.Services
     .AddInfrastructureServices()
     .AddIdentitySetup()
     .AddAuthenticationAndAuthorizationServices()
+    .AddApiServices()
     .AddUseCases()
     .AddValidators()
     .AddHealthChecksServices()

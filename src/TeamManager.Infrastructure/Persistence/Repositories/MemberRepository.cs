@@ -62,9 +62,27 @@ public class MemberRepository : IMemberRepository
         }
     }
 
-    public Task<ApplicationAuthUser?> RetrieveEntityByIdAsync(Guid id)
+    public async Task<ApplicationAuthUser?> RetrieveEntityByIdAsync(Guid id)
     {
-        throw new NotImplementedException();
+        var entity = await _context.Users.FirstOrDefaultAsync(user => user.Id.Equals(id));
+
+        return entity;
+    }
+
+    public async Task<EmailVerificationToken?> RetrieveEmailVerificationByIdAsync(Guid id)
+    {
+        var tokenEntity = await _context.EmailVerificationTokens.Include(token => token.User).FirstOrDefaultAsync(token => token.Id == id);
+
+        return tokenEntity;
+    }
+
+    public async Task<EmailVerificationToken> CreateEmailVerificationToken(EmailVerificationToken emailVerificationToken)
+    {
+        var tokenEntity = await _context.EmailVerificationTokens.AddAsync(emailVerificationToken);
+
+        await _context.SaveChangesAsync();
+
+        return tokenEntity.Entity;
     }
 
     public async Task<ApplicationAuthUser?> RetrieveEntityByEmailAsync(string email)
@@ -86,8 +104,19 @@ public class MemberRepository : IMemberRepository
         return roles;
     }
 
-    public Task UpdateEntityAsync(ApplicationAuthUser entity)
+    public async Task UpdateEntityAsync(ApplicationAuthUser entity)
     {
-        throw new NotImplementedException();
+        _context.Users.Update(entity);
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> RemoveTokenVerification(EmailVerificationToken emailVerificationToken)
+    {
+        _context.EmailVerificationTokens.Remove(emailVerificationToken);
+        
+        await _context.SaveChangesAsync();
+
+        return true;
     }
 }

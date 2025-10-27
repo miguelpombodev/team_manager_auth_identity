@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TeamManager.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using TeamManager.Infrastructure.Persistence;
 namespace TeamManager.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251024013500_AddEmailVerificationTokenTable")]
+    partial class AddEmailVerificationTokenTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -275,6 +278,10 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("UUID")
+                        .HasColumnName("public_id");
+
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("VARCHAR(100)")
@@ -285,21 +292,7 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                         .HasColumnType("CHAR(2)")
                         .HasColumnName("initials");
 
-                    b.Property<Guid>("PublicId")
-                        .HasColumnType("UUID")
-                        .HasColumnName("public_id");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("UUID")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PublicId")
-                        .IsUnique();
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasKey("Id", "PublicId");
 
                     b.ToTable("UserComplements", "TeamManager");
                 });
@@ -342,7 +335,7 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserEmailVerificationToken", "TeamManager");
+                    b.ToTable("EmailVerification", "TeamManager");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -403,17 +396,6 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TeamManager.Domain.Entities.UserComplements", b =>
-                {
-                    b.HasOne("TeamManager.Domain.Entities.ApplicationAuthUser", "User")
-                        .WithOne("UserComplements")
-                        .HasForeignKey("TeamManager.Domain.Entities.UserComplements", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("TeamManager.Domain.Entities.UserTeam", b =>
                 {
                     b.HasOne("TeamManager.Domain.Entities.Team", "Team")
@@ -446,9 +428,6 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("TeamManager.Domain.Entities.ApplicationAuthUser", b =>
                 {
-                    b.Navigation("UserComplements")
-                        .IsRequired();
-
                     b.Navigation("UserRoles");
 
                     b.Navigation("UserTeams");

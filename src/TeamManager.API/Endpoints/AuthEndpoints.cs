@@ -1,8 +1,11 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using TeamManager.API.Generator;
+using TeamManager.Application.Abstractions.Requests;
 using TeamManager.Application.Abstractions.Requests.Auth;
 using TeamManager.Application.Features.Auth;
+using TeamManager.Application.Features.Member;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Providers.Authentication.Entities;
 
@@ -10,6 +13,8 @@ namespace TeamManager.API.Endpoints;
 
 public static class AuthEndpoints
 {
+    public const string VerifyEmail = "VerifyEmail";
+    
     private const string LoginProvider = "TeamManager";
     private const string TokenName = "refresh_token";
 
@@ -18,25 +23,32 @@ public static class AuthEndpoints
         var group = app.MapGroup("auth").WithTags("Auth");
 
         group.MapPost(
-            "register",
-            async (
-                [FromBody] RegisterTeamMember request,
-                RegisterTeamMemberUseCase useCase) =>
-            {
-                var result = await useCase.ExecuteAsync(
-                    request
-                );
-                
-                if (result.IsFailure)
+                "register",
+                async (
+                    [FromBody] RegisterTeamMember request,
+                    RegisterTeamMemberUseCase useCase,
+                    SendEmailVerificationUseCase sendEmailVerificationUseCase,
+                    EmailVerificationLinkFactory emailVerificationLinkFactory) =>
                 {
-                    return Results.Problem(
-                        title: result.Error.Code,
-                        detail: result.Error.Description,
-                        statusCode: result.Error.StatusCode);
-                }
+                    var result = await useCase.ExecuteAsync(
+                        request
+                    );
 
-                return Results.Created();
-            })
+                    if (result.IsFailure)
+                    {
+                        return Results.Problem(
+                            title: result.Error.Code,
+                            detail: result.Error.Description,
+                            statusCode: result.Error.StatusCode);
+                    }
+
+                    var linkVerification = emailVerificationLinkFactory.Create(result.Data!);
+
+                    var memberValidationLinkAndToken = new MemberValidationLinkAndToken(linkVerification, result.Data);
+                    await sendEmailVerificationUseCase.ExecuteAsync(memberValidationLinkAndToken);
+
+                    return Results.Created();
+                })
             .AddEndpointFilter<ValidationFilter<RegisterTeamMember>>()
             .WithSummary("Register a new member")
             .WithDescription(
@@ -46,46 +58,46 @@ public static class AuthEndpoints
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapPost(
-            "login",
-            async (
-                [FromBody] AuthBaseRequest request,
-                IValidator<AuthBaseRequest> validator,
-                LoginTeamMemberUseCase useCase,
-                SignInManager<ApplicationAuthUser> signInManager,
-                UserManager<ApplicationAuthUser> userManager) =>
-            {
-                var validationResult = await validator.ValidateAsync(request);
-
-                if (!validationResult.IsValid)
+                "login",
+                async (
+                    [FromBody] AuthBaseRequest request,
+                    IValidator<AuthBaseRequest> validator,
+                    LoginTeamMemberUseCase useCase,
+                    SignInManager<ApplicationAuthUser> signInManager,
+                    UserManager<ApplicationAuthUser> userManager) =>
                 {
-                    var errors = validationResult.Errors.Select(e => new
+                    var validationResult = await validator.ValidateAsync(request);
+
+                    if (!validationResult.IsValid)
                     {
-                        Field = e.PropertyName,
-                        Error = e.ErrorMessage
-                    });
+                        var errors = validationResult.Errors.Select(e => new
+                        {
+                            Field = e.PropertyName,
+                            Error = e.ErrorMessage
+                        });
 
-                    return Results.BadRequest(new { Errors = errors });
-                }
-                
-                var result = await useCase.ExecuteAsync(request);
+                        return Results.BadRequest(new { Errors = errors });
+                    }
 
-                if (result.IsFailure)
-                {
-                    return Results.Problem(
-                        title: result.Error.Code,
-                        detail: result.Error.Description,
-                        statusCode: result.Error.StatusCode);
-                }
+                    var result = await useCase.ExecuteAsync(request);
 
-                await signInManager.SignInAsync(result.Data.Item2, isPersistent: true);
-                await userManager.SetAuthenticationTokenAsync(
-                    result.Data.Item2,
-                    LoginProvider,
-                    TokenName,
-                    result.Data.Item1.RefreshToken);
+                    if (result.IsFailure)
+                    {
+                        return Results.Problem(
+                            title: result.Error.Code,
+                            detail: result.Error.Description,
+                            statusCode: result.Error.StatusCode);
+                    }
 
-                return Results.Ok(result.Data.Item1);
-            })
+                    await signInManager.SignInAsync(result.Data.Item2, isPersistent: true);
+                    await userManager.SetAuthenticationTokenAsync(
+                        result.Data.Item2,
+                        LoginProvider,
+                        TokenName,
+                        result.Data.Item1.RefreshToken);
+
+                    return Results.Ok(result.Data.Item1);
+                })
             .AddEndpointFilter<ValidationFilter<AuthBaseRequest>>()
             .WithSummary("Login Member and return a cookie")
             .WithDescription(
@@ -93,5 +105,20 @@ public static class AuthEndpoints
             .Produces<AuthResult>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapGet("confirm-email", async (Guid token, ConfirmMemberEmailUseCase useCase) =>
+        {
+            var result = await useCase.ExecuteAsync(token);
+
+            if (result.IsFailure)
+            {
+                return Results.Problem(
+                    title: result.Error.Code,
+                    detail: result.Error.Description,
+                    statusCode: result.Error.StatusCode);
+            }
+
+            return Results.Ok();
+        }).WithName(VerifyEmail);
     }
 }

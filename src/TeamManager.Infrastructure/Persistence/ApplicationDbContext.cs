@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using TeamManager.Domain.Entities;
+using TeamManager.Domain.Members.Entities;
 
 namespace TeamManager.Infrastructure.Persistence;
 
@@ -20,6 +21,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Team> Teams => Set<Team>();
     public DbSet<UserTeam> UserTeams => Set<UserTeam>();
     public DbSet<UserComplements> UserComplements => Set<UserComplements>();
+    public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>() ;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

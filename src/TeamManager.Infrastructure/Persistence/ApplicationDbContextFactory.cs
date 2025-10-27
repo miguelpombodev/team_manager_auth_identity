@@ -16,7 +16,7 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
 
 
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        var connectionString = configuration.GetConnectionString("TeamManager");
+        var connectionString = configuration.GetConnectionString("DatabaseConnectionString");
 
         optionsBuilder
             .UseNpgsql(connectionString, options =>

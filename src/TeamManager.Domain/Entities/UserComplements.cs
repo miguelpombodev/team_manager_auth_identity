@@ -6,10 +6,13 @@ public class UserComplements
     public Guid PublicId { get; protected set; }
     public string FullName { get; protected set; } = string.Empty;
     public string Initials { get; protected set; } = string.Empty;
+    
+    public Guid UserId { get; protected set; } = Guid.NewGuid();
+    public ApplicationAuthUser User { get; protected set; }
 
     protected UserComplements() { }
     
-    public static UserComplements Build(string fullName)
+    public static UserComplements Build(string fullName, Guid userId)
     {
         if (string.IsNullOrWhiteSpace(fullName))
             throw new ArgumentException("User full name must have a value", nameof(fullName));
@@ -18,6 +21,7 @@ public class UserComplements
         entity.PublicId = Guid.NewGuid();
         entity.SetFullName(fullName);
         entity.SetInitialByFullName(fullName);
+        entity.UserId = userId;
 
         return entity;
     }

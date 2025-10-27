@@ -6,4 +6,5 @@ public static class TableNames
     public const string Teams = nameof(Teams);
     public const string ApplicationUser = nameof(ApplicationUser);
     public const string UserComplements = nameof(UserComplements);
+    public const string UserEmailVerificationToken = nameof(UserEmailVerificationToken);
 }

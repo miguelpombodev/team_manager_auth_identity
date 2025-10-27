@@ -10,24 +10,21 @@ using TeamManager.Domain.Members.Errors;
 
 namespace TeamManager.Application.Features.Auth;
 
-public class RegisterTeamMemberUseCase : IUseCase<RegisterTeamMember, Result<ApplicationAuthUser>>
+public class RegisterTeamMemberUseCase : IUseCase<RegisterTeamMember, Result<EmailVerificationToken>>
 {
     private readonly IMemberRepository _memberRepository;
     private readonly ILogger<RegisterTeamMemberUseCase> _logger;
-    private readonly IServiceBusProvider _serviceBusProvider;
 
     public RegisterTeamMemberUseCase(
-        IMemberRepository memberRepository, 
-        ILogger<RegisterTeamMemberUseCase> logger,
-        IServiceBusProvider serviceBusProvider
-        )
+        IMemberRepository memberRepository,
+        ILogger<RegisterTeamMemberUseCase> logger
+    )
     {
         _memberRepository = memberRepository;
         _logger = logger;
-        _serviceBusProvider = serviceBusProvider;
     }
 
-    public async Task<Result<ApplicationAuthUser>> ExecuteAsync(RegisterTeamMember request)
+    public async Task<Result<EmailVerificationToken>> ExecuteAsync(RegisterTeamMember request)
     {
         var tryToGetUser = await _memberRepository.RetrieveEntityByEmailAsync(request.Email);
 
@@ -39,12 +36,12 @@ public class RegisterTeamMemberUseCase : IUseCase<RegisterTeamMember, Result<App
                 MembersErrors.MemberAlreadyRegistered.Description
             );
 
-            return Result<ApplicationAuthUser>.Failure(MembersErrors.MemberAlreadyRegistered);
+            return Result<EmailVerificationToken>.Failure(MembersErrors.MemberAlreadyRegistered);
         }
 
         var user = ApplicationAuthUser.Build(request.Email, request.FullName);
 
-        var userComplements = UserComplements.Build(request.FullName);
+        var userComplements = UserComplements.Build(request.FullName, user.Id);
 
         var registerUserResult = await _memberRepository.CreateAsync(user, userComplements, request.Password);
 
@@ -55,17 +52,14 @@ public class RegisterTeamMemberUseCase : IUseCase<RegisterTeamMember, Result<App
                 registerUserResult.Error.Description
             );
 
-            return Result<ApplicationAuthUser>.Failure(
+            return Result<EmailVerificationToken>.Failure(
                 new Error("Member.RegistrationError", 400, registerUserResult.Error.Description));
         }
 
         _logger.LogInformation("New user has been registered. User email: {UserEmail}", request.Email);
         
-        // Create factory for member notification
-        var memberRegisteredEmailNotification = new MemberCreatedEmailNotification(request.Email);
+        var verificationToken = EmailVerificationToken.Build(user.Id);
 
-        await _serviceBusProvider.SendMessage(memberRegisteredEmailNotification);
-
-        return Result<ApplicationAuthUser>.Success(registerUserResult.Data!);
+        return Result<EmailVerificationToken>.Success(verificationToken);
     }
 }
