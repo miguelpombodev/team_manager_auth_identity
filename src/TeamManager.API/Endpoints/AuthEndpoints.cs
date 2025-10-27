@@ -13,8 +13,8 @@ namespace TeamManager.API.Endpoints;
 
 public static class AuthEndpoints
 {
-    public const string VerifyEmail = "VerifyEmail";
-    
+    public const string VerifyEmailEndpointName = "VerifyEmail";
+
     private const string LoginProvider = "TeamManager";
     private const string TokenName = "refresh_token";
 
@@ -107,18 +107,23 @@ public static class AuthEndpoints
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapGet("confirm-email", async (Guid token, ConfirmMemberEmailUseCase useCase) =>
-        {
-            var result = await useCase.ExecuteAsync(token);
-
-            if (result.IsFailure)
             {
-                return Results.Problem(
-                    title: result.Error.Code,
-                    detail: result.Error.Description,
-                    statusCode: result.Error.StatusCode);
-            }
+                var result = await useCase.ExecuteAsync(token);
 
-            return Results.Ok();
-        }).WithName(VerifyEmail);
+                if (result.IsFailure)
+                {
+                    return Results.Problem(
+                        title: result.Error.Code,
+                        detail: result.Error.Description,
+                        statusCode: result.Error.StatusCode);
+                }
+
+                return Results.Ok();
+            }).WithName(VerifyEmailEndpointName)
+            .WithSummary("Confirm user's email")
+            .WithDescription(
+                "This endpoint confirms user's email by token in email sent after user is registered.")
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 }

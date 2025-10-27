@@ -5,15 +5,24 @@ namespace TeamManager.API.Generator;
 
 internal sealed class EmailVerificationLinkFactory(
     IHttpContextAccessor httpContextAccessor,
-    LinkGenerator linkGenerator)
+    LinkGenerator linkGenerator,
+    ILogger<EmailVerificationLinkFactory> _logger)
 {
     public string Create(EmailVerificationToken emailVerificationToken)
     {
-        string? verificationLink = linkGenerator.GetUriByName(
+        var verificationLink = linkGenerator.GetUriByName(
             httpContextAccessor.HttpContext!,
-            AuthEndpoints.VerifyEmail, 
+            AuthEndpoints.VerifyEmailEndpointName,
             new { token = emailVerificationToken.Id });
 
-        return verificationLink ?? throw new Exception("Could not create email verification link");
+        if (string.IsNullOrEmpty(verificationLink))
+        {
+            var errorLogMessageProperties = new { emailVerificationToken.Id, emailVerificationToken.UserId };
+
+            _logger.LogWarning("Verification Link was created as null or empty - {@ErrorLogMessageProperties}", errorLogMessageProperties);
+            throw new ArgumentException("Could not create email verification link");
+        }
+
+        return verificationLink;
     }
 }
