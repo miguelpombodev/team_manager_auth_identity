@@ -32,16 +32,16 @@ public class LoginTeamMemberUseCase : IUseCase<AuthBaseRequest, Result<(AuthResu
 
     public async Task<Result<(AuthResult, ApplicationAuthUser)>> ExecuteAsync(AuthBaseRequest request)
     {
-        var user = await _memberRepository.RetrieveEntityByEmailAsync(request.Email);
-
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        
         if (user is null || !await _userManager.CheckPasswordAsync(user, request.Password))
         {
             return Result<(AuthResult, ApplicationAuthUser)>.Failure(AuthenticationErrors.UserAccountNotFound);
         }
-        
+        var globalRoles = await _userManager.GetRolesAsync(user);
         var userTeamRole = await _memberRepository.RetrieveTeamMemberRolesByEntity(user);
 
-        var accessToken = _tokenProvider.Create(user, userTeamRole);
+        var accessToken = _tokenProvider.Create(user, globalRoles, userTeamRole);
         var refreshToken = _tokenProvider.CreateRefreshToken();
 
         var auth = AuthResult.Create(accessToken, refreshToken);

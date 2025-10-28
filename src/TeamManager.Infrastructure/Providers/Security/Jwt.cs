@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using TeamManager.Domain.Common.Auth;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Members.Entities;
 using TeamManager.Infrastructure.Configurations;
@@ -47,14 +48,30 @@ public class Jwt
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AppSettings.JwtSecret))
         };
     }
-    
-    public SecurityTokenDescriptor BuildTokenDescriptor(SigningCredentials credentials, ApplicationAuthUser user, IList<UserTeamRoleDto> userTeamRoleDto)
+
+    public SecurityTokenDescriptor BuildTokenDescriptor(
+        SigningCredentials credentials,
+        ApplicationAuthUser user,
+        IList<string> globalRoles,
+        IList<UserTeamRoleDto> teamRoles
+    )
     {
-        List<Claim> claims = [
+        List<Claim> claims =
+        [
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-            ..userTeamRoleDto.Select(x => new Claim("TeamsRole", JsonSerializer.Serialize(x)))
         ];
+
+        foreach (var role in globalRoles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
+        foreach (var teamRole in teamRoles)
+        {
+            string claimValue = $"{teamRole.TeamId}:{teamRole.RoleName}";
+            claims.Add(new Claim(CustomClaimTypes.TeamRole, claimValue));
+        }
         
         var now = DateTime.UtcNow;
 
@@ -68,16 +85,18 @@ public class Jwt
             Audience = AppSettings.JwtAudience,
         };
     }
-    
-    public SecurityTokenDescriptor BuildTokenDescriptor(SigningCredentials credentials, ApplicationAuthUser user, IList<string> roles, List<UserTeam> userTeams)
+
+    public SecurityTokenDescriptor BuildTokenDescriptor(SigningCredentials credentials, ApplicationAuthUser user,
+        IList<string> roles, List<UserTeam> userTeams)
     {
-        List<Claim> claims = [
+        List<Claim> claims =
+        [
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email!),
             ..userTeams.Select(x => new Claim(ClaimValueTypes.String, x.TeamId.ToString())),
             ..roles.Select(x => new Claim(ClaimTypes.Role, x))
         ];
-        
+
         var now = DateTime.UtcNow;
 
         return new SecurityTokenDescriptor

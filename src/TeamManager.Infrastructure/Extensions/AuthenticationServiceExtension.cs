@@ -13,13 +13,12 @@ using TeamManager.Infrastructure.Providers.Security;
 
 namespace TeamManager.Infrastructure.Extensions;
 
-public static class AuthServiceExtension
+public static class AuthenticationServiceExtension
 {
-    public static IServiceCollection AddAuthenticationAndAuthorizationServices(this IServiceCollection services)
+    public static IServiceCollection AddAuthenticationServices(this IServiceCollection services)
     {
         services.AddScoped<ITokenProvider, TokenProvider>();
-
-        services.AddAuthorization();
+        
         services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;

@@ -32,11 +32,11 @@ public class TokenProvider : ITokenProvider
         _validationParameters = _jwt.BuildTokenValidationParameters();
     }
 
-    public string Create(ApplicationAuthUser user, IList<UserTeamRoleDto> userTeamRoleDto)
+    public string Create(ApplicationAuthUser user, IList<string> globalRoles, IList<UserTeamRoleDto> userTeamRoleDto)
     {
         var credentials = BuildCredentials();
 
-        var tokenDescriptor = _jwt.BuildTokenDescriptor(credentials, user, userTeamRoleDto);
+        var tokenDescriptor = _jwt.BuildTokenDescriptor(credentials, user, globalRoles,userTeamRoleDto);
 
         var token = _handler.CreateToken(tokenDescriptor);
 

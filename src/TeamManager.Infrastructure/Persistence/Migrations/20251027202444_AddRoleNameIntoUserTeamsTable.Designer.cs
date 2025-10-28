@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TeamManager.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using TeamManager.Infrastructure.Persistence;
 namespace TeamManager.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251027202444_AddRoleNameIntoUserTeamsTable")]
+    partial class AddRoleNameIntoUserTeamsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,6 +32,9 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ApplicationAuthUserId")
+                        .HasColumnType("UUID");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("text");
@@ -42,6 +48,8 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApplicationAuthUserId");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
@@ -345,6 +353,13 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                     b.ToTable("UserEmailVerificationToken", "TeamManager");
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
+                {
+                    b.HasOne("TeamManager.Domain.Entities.ApplicationAuthUser", null)
+                        .WithMany("UserRoles")
+                        .HasForeignKey("ApplicationAuthUserId");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
@@ -441,6 +456,8 @@ namespace TeamManager.Infrastructure.Persistence.Migrations
                 {
                     b.Navigation("UserComplements")
                         .IsRequired();
+
+                    b.Navigation("UserRoles");
 
                     b.Navigation("UserTeams");
                 });
