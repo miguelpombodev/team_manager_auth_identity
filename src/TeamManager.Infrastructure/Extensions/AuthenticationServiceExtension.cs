@@ -1,24 +1,31 @@
 using System.Text;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using TeamManager.Application.Abstractions.Providers;
 using TeamManager.Domain.Providers.Authentication.Abstractions;
 using TeamManager.Infrastructure.Configurations;
-using TeamManager.Infrastructure.Providers;
 using TeamManager.Infrastructure.Providers.Security;
 
 namespace TeamManager.Infrastructure.Extensions;
 
 public static class AuthenticationServiceExtension
 {
-    public static IServiceCollection AddAuthenticationServices(this IServiceCollection services)
+    public static IServiceCollection AddAuthenticationServices(this IServiceCollection services,
+        IConfiguration configuration)
     {
+        var jwtSettings = configuration.GetSection("Jwt")
+                              .Get<JwtSettings>() ??
+                          throw new InvalidOperationException("Jwt configuration is missing.");
+
+        services.AddSingleton<IJwtSettings>(jwtSettings);
         services.AddScoped<ITokenProvider, TokenProvider>();
-        
+
+        services.AddScoped<Jwt>();
+
         services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
@@ -42,9 +49,9 @@ public static class AuthenticationServiceExtension
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = AppSettings.JwtIssuer,
-                    ValidAudience = AppSettings.JwtAudience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AppSettings.JwtSecret))
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret))
                 };
 
                 options.Events = new JwtBearerEvents
@@ -56,6 +63,7 @@ public static class AuthenticationServiceExtension
                         {
                             context.Token = tokenFromCookie;
                         }
+
                         return Task.CompletedTask;
                     }
                 };

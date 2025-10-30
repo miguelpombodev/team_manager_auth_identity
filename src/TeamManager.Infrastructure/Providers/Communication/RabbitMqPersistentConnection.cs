@@ -1,7 +1,5 @@
-using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
-using TeamManager.Domain.Common.Abstraction.Communication;
-using TeamManager.Infrastructure.Configurations;
+using TeamManager.Application.Abstractions.Providers;
 using TeamManager.Infrastructure.Providers.Communication.Interfaces;
 
 namespace TeamManager.Infrastructure.Providers.Communication;
@@ -20,14 +18,14 @@ public sealed class RabbitMqPersistentConnection : IDisposable, IRabbitMqConnect
         publisherConfirmationTrackingEnabled: true,
         outstandingPublisherConfirmationsRateLimiter: new ThrottlingRateLimiter(MaxOutstandingConfirms));
 
-    public RabbitMqPersistentConnection()
+    public RabbitMqPersistentConnection(IRabbitMqSettings rabbitMqSettings)
     {
         _factory = new ConnectionFactory
         {
-            HostName = AppSettings.RabbitMqHostName,
-            Port = AppSettings.RabbitMqPort,
-            UserName = AppSettings.RabbitMqUserName,
-            Password = AppSettings.RabbitMqPassword
+            HostName = rabbitMqSettings.RabbitMqHostName,
+            Port = rabbitMqSettings.RabbitMqPort,
+            UserName = rabbitMqSettings.RabbitMqUserName,
+            Password = rabbitMqSettings.RabbitMqPassword
         };
     }
 

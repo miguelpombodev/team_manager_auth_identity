@@ -1,50 +1,47 @@
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Scrutor;
+using TeamManager.Application.Abstractions.Providers;
 using TeamManager.Infrastructure.Configurations;
-using TeamManager.Infrastructure.Persistence;
-using StackExchange.Redis;
-using TeamManager.Domain.Common.Abstraction.Communication;
-using TeamManager.Domain.Providers.Cache;
-using TeamManager.Infrastructure.Providers.Cache;
-using TeamManager.Infrastructure.Providers.Communication;
-using TeamManager.Infrastructure.Providers.Communication.Interfaces;
 
 namespace TeamManager.Infrastructure.Extensions;
 
 public static class InfrastructureServices
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructureServices(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
     {
-        services.AddDbContext<ApplicationDbContext>(x => x.UseNpgsql(AppSettings.DatabaseConnectionString));
-        services.AddSingleton<IDistribuitedCacheProvider, DistribuitedCacheProvider>();
+        services.AddSettingsServices(configuration);
 
-        var redisConnection = ConnectionMultiplexer.Connect(AppSettings.RedisConnectionString);
-        services.AddSingleton<IConnectionMultiplexer>(redisConnection);
+        services.AddPersistenceServices(configuration);
 
-        services.AddStackExchangeRedisCache(x =>
-            {
-                x.Configuration = AppSettings.RedisConnectionString;
-                x.InstanceName = AppSettings.RedisInstanceName;
-            }
-        );
+        services.AddCacheServices(configuration);
 
-        services.AddSingleton<IRabbitMqConnection, RabbitMqPersistentConnection>();
+        services.AddMessageBrokerServices();
 
-        services.AddSingleton<IHostedService, RabbitMqConnectionHostedService>();
+        services.AddHttpClientsServices(configuration);
 
-        services.AddScoped<IServiceBusProvider, ServiceBusProvider>();
+        services.AddAuthenticationServices(configuration);
 
+        return services;
+    }
 
-        services.Scan(x => x.FromAssemblies(
-                Infrastructure.AssemblyReference.Assembly
-            )
-            .AddClasses(false)
-            .UsingRegistrationStrategy(RegistrationStrategy.Skip)
-            .AsImplementedInterfaces()
-            .WithScopedLifetime()
-        );
+    private static IServiceCollection AddSettingsServices(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddSingleton<IConnectionStringsSettings>(
+            configuration.GetSection("ConnectionStrings").Get<ConnectionStringsSettings>() ??
+            throw new InvalidOperationException("ConnectionStrings configuration is missing."));
+
+        services.AddSingleton<IRedisSettings>(
+            configuration.GetSection("Redis").Get<RedisSettings>() ??
+            throw new InvalidOperationException("Redis configuration is missing."));
+
+        services.AddSingleton<IRabbitMqSettings>(
+            configuration.GetSection("RabbitMqSettings").Get<RabbitMqSettings>() ??
+            throw new InvalidOperationException("RabbitMqSettings configuration is missing."));
 
         return services;
     }

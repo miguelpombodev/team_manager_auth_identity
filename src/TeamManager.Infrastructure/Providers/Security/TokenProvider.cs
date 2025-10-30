@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
+using TeamManager.Application.Abstractions.Providers;
 using TeamManager.Domain.Common.Abstraction;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Members.Entities;
@@ -19,17 +20,15 @@ public class TokenProvider : ITokenProvider
 
     private readonly JwtSecurityTokenHandler _handler = new();
     private readonly IDatabase _redis;
-
-    private readonly TokenValidationParameters _validationParameters;
-
+    
     private readonly Jwt _jwt;
+    private readonly IJwtSettings _jwtSettings;
 
-    public TokenProvider(IConnectionMultiplexer redis)
+    public TokenProvider(IConnectionMultiplexer redis, Jwt jwt, IJwtSettings jwtSettings)
     {
         _redis = redis.GetDatabase();
-
-        _jwt = Jwt.Create();
-        _validationParameters = _jwt.BuildTokenValidationParameters();
+        _jwt = jwt;
+        _jwtSettings = jwtSettings;
     }
 
     public string Create(ApplicationAuthUser user, IList<string> globalRoles, IList<UserTeamRoleDto> userTeamRoleDto)
@@ -82,7 +81,7 @@ public class TokenProvider : ITokenProvider
 
     private SigningCredentials BuildCredentials()
     {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Secret));
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
 
         return new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
     }

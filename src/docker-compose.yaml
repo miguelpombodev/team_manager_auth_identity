@@ -3,6 +3,7 @@ version: "3.4"
 services:
   database:
     image: postgres
+    platform: linux/amd64
     ports:
       - '5432:5432'
     restart: always
@@ -21,6 +22,7 @@ services:
       - pgdata:/var/lib/postgresql/data
   redis:
     image: redis
+    platform: linux/amd64
     ports:
       - '6379:6379'
     restart: always
@@ -30,6 +32,7 @@ services:
     command: redis-server --requirepass TeamManagerRedis123!
   rabbitmq:
     image: rabbitmq:3.12-management
+    platform: linux/amd64
     container_name: team_manager_rabbitmq_broker_management
     ports:
       - "5672:5672"
@@ -49,6 +52,23 @@ services:
     restart: on-failure
     depends_on:
       - rabbitmq
+  strapi:
+    image: strapi/strapi
+    container_name: team_manager_strapi_crm
+    restart: unless-stopped
+    environment:
+      DATABASE_CLIENT: "postgres"
+      DATABASE_NAME: "TeamManagerStrapiDB"
+      DATABASE_HOST: database
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: "docker123"
+    networks:
+      - tm_net
+    ports:
+      - "1337:1337"
+    depends_on:
+      - database
 
 networks:
   tm_net:

@@ -24,17 +24,16 @@ var configuration = new ConfigurationBuilder()
 
 builder.Host.ConfigureSerilog();
 
+
 builder.Services
     .AddOpenApi()
-    .AddAppConfiguration(configuration)
-    .AddInfrastructureServices()
+    .AddInfrastructureServices(configuration)
     .AddIdentitySetup()
     .AddAuthorizationServices()
-    .AddAuthenticationServices()
     .AddApiServices()
     .AddUseCases()
     .AddValidators()
-    .AddHealthChecksServices()
+    .AddHealthChecksServices(configuration)
     .AddSwaggerGen();
 
 var app = builder.Build();

@@ -8,6 +8,7 @@ using TeamManager.Application.Features.Member;
 using TeamManager.Application.Features.Teams;
 using TeamManager.Domain.Common.Abstraction;
 using TeamManager.Domain.Entities;
+using TeamManager.Domain.Members.Abstractions;
 using TeamManager.Domain.Members.Entities;
 using TeamManager.Domain.Providers.Authentication.Entities;
 
@@ -28,6 +29,9 @@ public static class AddUseCasesExtensions
         services.AddScoped<RegisterTeamUseCase>();
         services.AddScoped<SendEmailVerificationUseCase>();
         services.AddScoped<ConfirmMemberEmailUseCase>();
+
+
+        services.AddSingleton<IEmailTemplateFactory, EmailTemplateFactory>();
         
         return services;
     }

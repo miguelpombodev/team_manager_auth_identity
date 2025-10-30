@@ -1,52 +1,20 @@
 using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using TeamManager.Application.Abstractions.Providers;
 using TeamManager.Domain.Common.Auth;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Members.Entities;
-using TeamManager.Infrastructure.Configurations;
 
 namespace TeamManager.Infrastructure.Providers.Security;
 
 public class Jwt
 {
-    public string Secret { get; }
-    public string Issuer { get; }
-    public string Audience { get; }
-    public int ExpirationInMinutes { get; }
+    private readonly IJwtSettings _jwtSettings;
 
-    private Jwt(string secret, string issuer, string audience, int expirationInMinutes)
+    public Jwt(IJwtSettings jwtSettings)
     {
-        Secret = secret;
-        Issuer = issuer;
-        Audience = audience;
-        ExpirationInMinutes = expirationInMinutes;
-    }
-
-    public static Jwt Create()
-    {
-        return new Jwt(
-            AppSettings.JwtSecret,
-            AppSettings.JwtIssuer,
-            AppSettings.JwtAudience,
-            AppSettings.JwtExpirationInMinutes
-        );
-    }
-
-    public TokenValidationParameters BuildTokenValidationParameters()
-    {
-        return new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = AppSettings.JwtIssuer,
-            ValidAudience = AppSettings.JwtAudience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AppSettings.JwtSecret))
-        };
+        _jwtSettings = jwtSettings;
     }
 
     public SecurityTokenDescriptor BuildTokenDescriptor(
@@ -72,17 +40,17 @@ public class Jwt
             string claimValue = $"{teamRole.TeamId}:{teamRole.RoleName}";
             claims.Add(new Claim(CustomClaimTypes.TeamRole, claimValue));
         }
-        
+
         var now = DateTime.UtcNow;
 
         return new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
             NotBefore = now.AddSeconds(-30),
-            Expires = now.AddMinutes(AppSettings.JwtExpirationInMinutes),
+            Expires = now.AddMinutes(_jwtSettings.ExpirationInMinutes),
             SigningCredentials = credentials,
-            Issuer = AppSettings.JwtIssuer,
-            Audience = AppSettings.JwtAudience,
+            Issuer = _jwtSettings.Issuer,
+            Audience = _jwtSettings.Audience,
         };
     }
 
@@ -103,10 +71,10 @@ public class Jwt
         {
             Subject = new ClaimsIdentity(claims),
             NotBefore = now.AddSeconds(-30),
-            Expires = now.AddMinutes(AppSettings.JwtExpirationInMinutes),
+            Expires = now.AddMinutes(_jwtSettings.ExpirationInMinutes),
             SigningCredentials = credentials,
-            Issuer = AppSettings.JwtIssuer,
-            Audience = AppSettings.JwtAudience,
+            Issuer = _jwtSettings.Issuer,
+            Audience = _jwtSettings.Audience,
         };
     }
 }
