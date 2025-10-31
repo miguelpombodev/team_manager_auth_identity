@@ -1,7 +1,5 @@
 using Microsoft.Extensions.Logging;
-using TeamManager.Application.Abstractions.Features;
-using TeamManager.Application.Abstractions.Providers;
-using TeamManager.Application.Abstractions.Requests;
+using TeamManager.Application.Contracts.Members;
 using TeamManager.Domain.Common.Abstraction;
 using TeamManager.Domain.Common.Abstraction.Communication;
 using TeamManager.Domain.Members.Abstractions;
@@ -9,6 +7,7 @@ using TeamManager.Domain.Members.Entities;
 using TeamManager.Domain.Members.Enums;
 using TeamManager.Domain.Providers.Communication;
 using TeamManager.Domain.Providers.Persistence;
+using TeamManager.Domain.Settings;
 
 namespace TeamManager.Application.Features.Member;
 

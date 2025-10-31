@@ -1,6 +1,9 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TeamManager.Application.Abstractions.Requests.Teams;
+using TeamManager.Application.Contracts.Teams;
 using TeamManager.Application.Features.Teams;
+using TeamManager.Domain.Common.Auth;
 using TeamManager.Domain.Entities;
 
 namespace TeamManager.API.Endpoints;
@@ -13,9 +16,13 @@ public static class TeamsEndpoints
 
         group.MapPost("/create", async (
                 [FromBody] RegisterTeam request,
-                RegisterTeamUseCase useCase
+                RegisterTeamUseCase useCase,
+                IAuthorizationService authService,
+                ClaimsPrincipal user
             ) =>
             {
+                await authService.AuthorizeAsync(user, AuthPolicies.CanCreateTeam);
+                
                 var result = await useCase.ExecuteAsync(
                     request
                 );

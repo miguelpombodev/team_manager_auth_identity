@@ -5,12 +5,12 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
-using TeamManager.Application.Abstractions.Providers;
 using TeamManager.Domain.Common.Abstraction;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Members.Entities;
 using TeamManager.Domain.Members.Errors;
 using TeamManager.Domain.Providers.Authentication.Abstractions;
+using TeamManager.Domain.Settings;
 
 namespace TeamManager.Infrastructure.Providers.Security;
 

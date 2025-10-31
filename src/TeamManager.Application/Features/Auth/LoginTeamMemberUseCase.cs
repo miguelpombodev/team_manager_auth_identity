@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using TeamManager.Application.Abstractions.Features;
-using TeamManager.Application.Abstractions.Requests.Auth;
+using TeamManager.Application.Contracts.Auth;
 using TeamManager.Domain.Common.Abstraction;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Members.Abstractions;

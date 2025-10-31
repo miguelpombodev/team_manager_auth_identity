@@ -1,8 +1,7 @@
-using System.Text.RegularExpressions;
 using FluentValidation;
-using TeamManager.Application.Abstractions.Requests.Auth;
+using TeamManager.Application.Contracts.Auth;
 
-namespace TeamManager.Application.Abstractions.Requests.Validators.Members;
+namespace TeamManager.Application.Validators.Members;
 
 public class RegisterTeamMemberRequestValidator : AbstractValidator<RegisterTeamMember>
 {

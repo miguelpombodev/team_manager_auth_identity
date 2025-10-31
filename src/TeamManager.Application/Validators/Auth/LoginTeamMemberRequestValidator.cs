@@ -1,7 +1,7 @@
 using FluentValidation;
-using TeamManager.Application.Abstractions.Requests.Auth;
+using TeamManager.Application.Contracts.Auth;
 
-namespace TeamManager.Application.Abstractions.Requests.Validators.Auth;
+namespace TeamManager.Application.Validators.Auth;
 
 public class LoginTeamMemberRequestValidator : AbstractValidator<AuthBaseRequest>
 {

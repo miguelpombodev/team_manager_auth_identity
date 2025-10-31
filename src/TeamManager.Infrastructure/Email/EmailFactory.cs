@@ -1,7 +1,8 @@
 using TeamManager.Domain.Members.Abstractions;
+using TeamManager.Domain.Members.Entities;
 using TeamManager.Domain.Members.Enums;
 
-namespace TeamManager.Domain.Members.Entities;
+namespace TeamManager.Infrastructure.Email;
 
 public class EmailTemplateFactory : IEmailTemplateFactory
 {

@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TeamManager.Application.Abstractions.Providers;
+using TeamManager.Domain.Members.Abstractions;
+using TeamManager.Domain.Settings;
 using TeamManager.Infrastructure.Configurations;
+using TeamManager.Infrastructure.Email;
 
 namespace TeamManager.Infrastructure.Extensions;
 
@@ -42,7 +44,9 @@ public static class InfrastructureServices
         services.AddSingleton<IRabbitMqSettings>(
             configuration.GetSection("RabbitMqSettings").Get<RabbitMqSettings>() ??
             throw new InvalidOperationException("RabbitMqSettings configuration is missing."));
-
+        
+        services.AddSingleton<IEmailTemplateFactory, EmailTemplateFactory>();
+        
         return services;
     }
 }

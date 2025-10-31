@@ -1,8 +1,7 @@
 using FluentValidation;
-using TeamManager.Application.Abstractions.Requests.Auth;
-using TeamManager.Application.Abstractions.Requests.Teams;
+using TeamManager.Application.Contracts.Teams;
 
-namespace TeamManager.Application.Abstractions.Requests.Validators.Teams;
+namespace TeamManager.Application.Validators.Teams;
 
 public class RegisterTeamRequestValidator : AbstractValidator<RegisterTeam>
 {

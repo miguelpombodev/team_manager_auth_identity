@@ -1,5 +1,5 @@
 using RabbitMQ.Client;
-using TeamManager.Application.Abstractions.Providers;
+using TeamManager.Domain.Settings;
 using TeamManager.Infrastructure.Providers.Communication.Interfaces;
 
 namespace TeamManager.Infrastructure.Providers.Communication;

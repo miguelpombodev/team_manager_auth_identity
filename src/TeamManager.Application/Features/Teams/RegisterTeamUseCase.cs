@@ -1,5 +1,4 @@
-using TeamManager.Application.Abstractions.Features;
-using TeamManager.Application.Abstractions.Requests.Teams;
+using TeamManager.Application.Contracts.Teams;
 using TeamManager.Domain.Common.Abstraction;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Members.Abstractions;

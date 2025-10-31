@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using TeamManager.Application.Abstractions.Providers;
+using TeamManager.Domain.Settings;
 
 namespace TeamManager.Infrastructure.Configurations;
 

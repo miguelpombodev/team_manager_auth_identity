@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using TeamManager.Application.Abstractions.Features;
-using TeamManager.Application.Abstractions.Requests.Auth;
+using TeamManager.Application.Contracts.Auth;
 using TeamManager.Domain.Common.Abstraction;
 using TeamManager.Domain.Common.Abstraction.Communication;
 using TeamManager.Domain.Entities;

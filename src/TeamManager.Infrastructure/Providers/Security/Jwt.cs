@@ -1,10 +1,10 @@
 using System.Security.Claims;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using TeamManager.Application.Abstractions.Providers;
 using TeamManager.Domain.Common.Auth;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Members.Entities;
+using TeamManager.Domain.Settings;
 
 namespace TeamManager.Infrastructure.Providers.Security;
 

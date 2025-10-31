@@ -1,4 +1,4 @@
-namespace TeamManager.Application.Abstractions.Providers;
+namespace TeamManager.Domain.Settings;
 
 public interface IRedisSettings
 {

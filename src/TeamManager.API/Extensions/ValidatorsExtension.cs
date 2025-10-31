@@ -1,6 +1,5 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using TeamManager.Application.Abstractions.Requests.Validators.Auth;
 
 namespace TeamManager.API.Extensions;
 

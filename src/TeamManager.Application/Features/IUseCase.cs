@@ -1,4 +1,4 @@
-namespace TeamManager.Application.Abstractions.Features;
+namespace TeamManager.Application.Features;
 
 public interface IUseCase<TResponse>
 {

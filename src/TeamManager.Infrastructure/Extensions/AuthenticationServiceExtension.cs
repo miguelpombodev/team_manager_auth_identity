@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using TeamManager.Application.Abstractions.Providers;
 using TeamManager.Domain.Providers.Authentication.Abstractions;
+using TeamManager.Domain.Settings;
 using TeamManager.Infrastructure.Configurations;
 using TeamManager.Infrastructure.Providers.Security;
 

@@ -1,6 +1,7 @@
 using TeamManager.Domain.Members.Abstractions;
+using TeamManager.Domain.Members.Entities;
 
-namespace TeamManager.Domain.Members.Entities;
+namespace TeamManager.Infrastructure.Email;
 
 public class WelcomeEmailBuilder : IEmailBodyBuilder
 {

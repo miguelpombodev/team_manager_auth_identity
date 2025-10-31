@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TeamManager.Application.Abstractions.Providers;
+using TeamManager.Domain.Settings;
 using TeamManager.Infrastructure.Configurations;
 
 namespace TeamManager.Infrastructure.Extensions;

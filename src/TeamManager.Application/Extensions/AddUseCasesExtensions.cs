@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
-using TeamManager.Application.Abstractions.Features;
-using TeamManager.Application.Abstractions.Requests;
-using TeamManager.Application.Abstractions.Requests.Auth;
-using TeamManager.Application.Abstractions.Requests.Teams;
+using TeamManager.Application.Contracts.Auth;
+using TeamManager.Application.Contracts.Members;
+using TeamManager.Application.Contracts.Teams;
+using TeamManager.Application.Features;
 using TeamManager.Application.Features.Auth;
 using TeamManager.Application.Features.Member;
 using TeamManager.Application.Features.Teams;
@@ -29,9 +29,6 @@ public static class AddUseCasesExtensions
         services.AddScoped<RegisterTeamUseCase>();
         services.AddScoped<SendEmailVerificationUseCase>();
         services.AddScoped<ConfirmMemberEmailUseCase>();
-
-
-        services.AddSingleton<IEmailTemplateFactory, EmailTemplateFactory>();
         
         return services;
     }

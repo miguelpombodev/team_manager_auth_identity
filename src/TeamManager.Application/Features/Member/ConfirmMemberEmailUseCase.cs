@@ -1,4 +1,3 @@
-using TeamManager.Application.Abstractions.Features;
 using TeamManager.Domain.Common.Abstraction;
 using TeamManager.Domain.Members.Abstractions;
 using TeamManager.Domain.Members.Errors;
