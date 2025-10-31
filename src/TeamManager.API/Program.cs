@@ -86,6 +86,8 @@ app.MapHealthChecksUI(x =>
     }
 );
 
+await app.SeedDatabaseAsync();
+
 AuthEndpoints.MapEndpoints(app);
 TeamsEndpoints.MapEndpoints(app);
 
