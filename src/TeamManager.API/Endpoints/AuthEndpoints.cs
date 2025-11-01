@@ -2,6 +2,7 @@ using System.Security.Claims;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using TeamManager.API.Generator;
 using TeamManager.Application.Contracts.Auth;
 using TeamManager.Application.Contracts.Members;
@@ -137,33 +138,69 @@ public static class AuthEndpoints
                     ClaimsPrincipal user,
                     IMemberRepository memberRepository) =>
                 {
-                    var getUserResult = await userManager.GetUserAsync(user);
+                    var getUserResult = await userManager.GetUserAsync(
+                        user
+                    );
 
                     if (getUserResult is null)
                     {
+                        Log.Warning(
+                            "[WARNING] There was an unsucessful attempt to log with {User}, please check its informations",
+                            user
+                        );
+
                         return Results.Unauthorized();
                     }
 
                     var newRefreshToken = tokenProvider.CreateRefreshToken();
 
                     var setAuthenticationResult =
-                        await userManager.SetAuthenticationTokenAsync(getUserResult, LoginProvider, TokenName,
+                        await userManager.SetAuthenticationTokenAsync(
+                            getUserResult,
+                            LoginProvider,
+                            TokenName,
                             newRefreshToken);
 
                     if (!setAuthenticationResult.Succeeded)
                     {
+                        var errors = setAuthenticationResult.Errors.Select(error => new
+                        {
+                            error.Code,
+                            error.Description
+                        });
+
+                        Log.Warning(
+                            "[WARNING] There are some errors  try to set new refreshToken to user {User} - Errors - {Errors}",
+                            getUserResult,
+                            errors
+                        );
+
                         return Results.Problem(
                             title: "RefreshTokenError",
                             detail: "There was not possible to generate a new refresh token",
                             statusCode: 409);
                     }
 
-                    var globalRoles = await userManager.GetRolesAsync(getUserResult);
-                    var userTeamRoles = await memberRepository.RetrieveTeamMemberRolesByEntity(getUserResult);
+                    var globalRoles = await userManager.GetRolesAsync(
+                        getUserResult
+                    );
 
-                    var newAccessToken = tokenProvider.Create(getUserResult, globalRoles, userTeamRoles);
+                    var userTeamRoles = await memberRepository.RetrieveTeamMemberRolesByEntity(
+                        getUserResult
+                    );
 
-                    return Results.Ok(AuthResult.Create(newAccessToken, newRefreshToken));
+                    var newAccessToken = tokenProvider.Create(
+                        getUserResult,
+                        globalRoles,
+                        userTeamRoles
+                    );
+
+                    return Results.Ok(
+                        AuthResult.Create(
+                            newAccessToken,
+                            newRefreshToken
+                        )
+                    );
                 })
             .WithSummary("Generates a new refresh token")
             .WithDescription("Tries to create a new refresh token")

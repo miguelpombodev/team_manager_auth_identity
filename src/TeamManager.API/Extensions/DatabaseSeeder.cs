@@ -13,8 +13,8 @@ public static class DatabaseSeeder
         {
             var services = scope.ServiceProvider;
             var loggerFactory = services.GetRequiredService<ILoggerFactory>();
-            var logger = loggerFactory.CreateLogger("DatabaseSeeder");
-            
+            var logger = loggerFactory.CreateLogger(nameof(DatabaseSeeder));
+
             var configuration = services.GetRequiredService<IConfiguration>();
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
             var userManager = services.GetRequiredService<UserManager<ApplicationAuthUser>>();
@@ -37,15 +37,15 @@ public static class DatabaseSeeder
                 if (!await roleManager.RoleExistsAsync(Roles.SystemAdmin))
                 {
                     await roleManager.CreateAsync(new IdentityRole<Guid>(Roles.SystemAdmin));
-                    logger.LogInformation("Role '{Role}' criada com sucesso.", Roles.SystemAdmin);
+                    logger.LogInformation("'{Role}' role created successfully.", Roles.SystemAdmin);
                 }
 
                 if (await userManager.FindByEmailAsync(adminEmail) is not null)
                 {
-                    logger.LogInformation("Utilizador SystemAdmin já existe. Nenhuma ação necessária.");
+                    logger.LogInformation("SystemAdmin role already exists. No action is necessary.");
                     return;
                 }
-                
+
                 await using (var transaction = await context.Database.BeginTransactionAsync())
                 {
                     try
@@ -78,7 +78,7 @@ public static class DatabaseSeeder
                     catch (Exception ex)
                     {
                         await transaction.RollbackAsync();
-                        logger.LogError(ex, "Falha ao executar o seeding do SystemAdmin. Rollback efetuado.");
+                        logger.LogError(ex, "Fail to execute SystemAdmin seeding. Rollback executed.");
                     }
                 }
             });
