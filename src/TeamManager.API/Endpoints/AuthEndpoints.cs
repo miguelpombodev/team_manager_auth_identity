@@ -171,6 +171,5 @@ public static class AuthEndpoints
             .Produces<AuthResult>()
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status500InternalServerError);
-        ;
     }
 }
