@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,9 @@ using TeamManager.Application.Contracts.Members;
 using TeamManager.Application.Features.Auth;
 using TeamManager.Application.Features.Member;
 using TeamManager.Domain.Entities;
+using TeamManager.Domain.Members.Abstractions;
+using TeamManager.Domain.Members.Entities;
+using TeamManager.Domain.Providers.Authentication.Abstractions;
 using TeamManager.Domain.Providers.Authentication.Entities;
 
 namespace TeamManager.API.Endpoints;
@@ -125,5 +129,48 @@ public static class AuthEndpoints
                 "This endpoint confirms user's email by token in email sent after user is registered.")
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapPost("refresh",
+                async (
+                    ITokenProvider tokenProvider,
+                    UserManager<ApplicationAuthUser> userManager,
+                    ClaimsPrincipal user,
+                    IMemberRepository memberRepository) =>
+                {
+                    var getUserResult = await userManager.GetUserAsync(user);
+
+                    if (getUserResult is null)
+                    {
+                        return Results.Unauthorized();
+                    }
+
+                    var newRefreshToken = tokenProvider.CreateRefreshToken();
+
+                    var setAuthenticationResult =
+                        await userManager.SetAuthenticationTokenAsync(getUserResult, LoginProvider, TokenName,
+                            newRefreshToken);
+
+                    if (!setAuthenticationResult.Succeeded)
+                    {
+                        return Results.Problem(
+                            title: "RefreshTokenError",
+                            detail: "There was not possible to generate a new refresh token",
+                            statusCode: 409);
+                    }
+
+                    var globalRoles = await userManager.GetRolesAsync(getUserResult);
+                    var userTeamRoles = await memberRepository.RetrieveTeamMemberRolesByEntity(getUserResult);
+
+                    var newAccessToken = tokenProvider.Create(getUserResult, globalRoles, userTeamRoles);
+
+                    return Results.Ok(AuthResult.Create(newAccessToken, newRefreshToken));
+                })
+            .WithSummary("Generates a new refresh token")
+            .WithDescription("Tries to create a new refresh token")
+            .RequireAuthorization()
+            .Produces<AuthResult>()
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status500InternalServerError);
+        ;
     }
 }
