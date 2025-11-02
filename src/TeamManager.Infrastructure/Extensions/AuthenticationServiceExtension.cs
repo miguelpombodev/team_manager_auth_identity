@@ -9,7 +9,7 @@ using TeamManager.Domain.Common.Auth;
 using TeamManager.Domain.Providers.Authentication.Abstractions;
 using TeamManager.Domain.Settings;
 using TeamManager.Infrastructure.Configurations;
-using TeamManager.Infrastructure.Providers.Security;
+using TeamManager.Infrastructure.Providers.Authentication;
 
 namespace TeamManager.Infrastructure.Extensions;
 
@@ -91,6 +91,8 @@ public static class AuthenticationServiceExtension
                 policy.RequireAuthenticatedUser();
             });
         });
+
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         return services;
     }

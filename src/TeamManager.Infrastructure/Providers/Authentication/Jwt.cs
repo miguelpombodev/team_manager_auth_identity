@@ -6,7 +6,7 @@ using TeamManager.Domain.Entities;
 using TeamManager.Domain.Members.Entities;
 using TeamManager.Domain.Settings;
 
-namespace TeamManager.Infrastructure.Providers.Security;
+namespace TeamManager.Infrastructure.Providers.Authentication;
 
 public class Jwt
 {

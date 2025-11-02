@@ -131,77 +131,22 @@ public static class AuthEndpoints
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapPost("refresh",
-                async (
-                    ITokenProvider tokenProvider,
-                    UserManager<ApplicationAuthUser> userManager,
-                    ClaimsPrincipal user,
-                    IMemberRepository memberRepository) =>
+        group.MapPost("refresh", async (GenerateNewRefreshTokenUseCase useCase) =>
+            {
+                var newRefreshTokenAuthResult = await useCase.ExecuteAsync();
+
+                if (newRefreshTokenAuthResult.IsFailure)
                 {
-                    var getUserResult = await userManager.GetUserAsync(
-                        user
-                    );
+                    return Results.Problem(
+                        title: newRefreshTokenAuthResult.Error.Code,
+                        detail: newRefreshTokenAuthResult.Error.Description,
+                        statusCode: newRefreshTokenAuthResult.Error.StatusCode);
+                }
 
-                    if (getUserResult is null)
-                    {
-                        Log.Warning(
-                            "[WARNING] There was an unsucessful attempt to log with {User}, please check its informations",
-                            user
-                        );
-
-                        return Results.Unauthorized();
-                    }
-
-                    var newRefreshToken = tokenProvider.CreateRefreshToken();
-
-                    var setAuthenticationResult =
-                        await userManager.SetAuthenticationTokenAsync(
-                            getUserResult,
-                            LoginProvider,
-                            TokenName,
-                            newRefreshToken);
-
-                    if (!setAuthenticationResult.Succeeded)
-                    {
-                        var errors = setAuthenticationResult.Errors.Select(error => new
-                        {
-                            error.Code,
-                            error.Description
-                        });
-
-                        Log.Warning(
-                            "[WARNING] There are some errors  try to set new refreshToken to user {User} - Errors - {Errors}",
-                            getUserResult,
-                            errors
-                        );
-
-                        return Results.Problem(
-                            title: "RefreshTokenError",
-                            detail: "There was not possible to generate a new refresh token",
-                            statusCode: 409);
-                    }
-
-                    var globalRoles = await userManager.GetRolesAsync(
-                        getUserResult
-                    );
-
-                    var userTeamRoles = await memberRepository.RetrieveTeamMemberRolesByEntity(
-                        getUserResult
-                    );
-
-                    var newAccessToken = tokenProvider.Create(
-                        getUserResult,
-                        globalRoles,
-                        userTeamRoles
-                    );
-
-                    return Results.Ok(
-                        AuthResult.Create(
-                            newAccessToken,
-                            newRefreshToken
-                        )
-                    );
-                })
+                return Results.Ok(
+                    newRefreshTokenAuthResult.Data
+                );
+            })
             .WithSummary("Generates a new refresh token")
             .WithDescription("Tries to create a new refresh token")
             .RequireAuthorization()

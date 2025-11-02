@@ -1,8 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using TeamManager.Domain.Common.Abstraction;
@@ -12,7 +10,7 @@ using TeamManager.Domain.Members.Errors;
 using TeamManager.Domain.Providers.Authentication.Abstractions;
 using TeamManager.Domain.Settings;
 
-namespace TeamManager.Infrastructure.Providers.Security;
+namespace TeamManager.Infrastructure.Providers.Authentication;
 
 public class TokenProvider : ITokenProvider
 {

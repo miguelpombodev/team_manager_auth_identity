@@ -13,6 +13,11 @@ public static class AuthenticationErrors
         "Authentication.RefreshTokenNotFound",
         404,
         "Refresh Token not found! Please be sure!");
+    
+    public static readonly Error RefreshTokenGenerationError = new(
+        "Authentication.RefreshTokenGenerationError",
+        409,
+        "There was not possible to generate a new refresh token");
 
     public static readonly Error DeleteRefreshTokenError = new(
         "Authentication.DeleteRefreshTokenError",

@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Security.Principal;
 using Microsoft.Extensions.DependencyInjection;
 using TeamManager.Application.Contracts.Auth;
 using TeamManager.Application.Contracts.Members;
@@ -19,16 +21,21 @@ public static class AddUseCasesExtensions
     public static IServiceCollection AddUseCases(this IServiceCollection services)
     {
         services.AddScoped<IUseCase<RegisterTeamMember, Result<EmailVerificationToken>>, RegisterTeamMemberUseCase>();
-        services.AddScoped<IUseCase<AuthBaseRequest, Result<(AuthResult, ApplicationAuthUser)>>, LoginTeamMemberUseCase>();
+        services
+            .AddScoped<IUseCase<AuthBaseRequest, Result<(AuthResult, ApplicationAuthUser)>>, LoginTeamMemberUseCase>();
         services.AddScoped<IUseCase<RegisterTeam, Result<Team>>, RegisterTeamUseCase>();
         services.AddScoped<IUseCase<MemberValidationLinkAndToken, Result<bool>>, SendEmailVerificationUseCase>();
         services.AddScoped<IUseCase<Guid, Result<bool>>, ConfirmMemberEmailUseCase>();
-        
+        services.AddScoped<IUseCase<Result<AuthResult>>, GenerateNewRefreshTokenUseCase>();
+
         services.AddScoped<RegisterTeamMemberUseCase>();
         services.AddScoped<LoginTeamMemberUseCase>();
         services.AddScoped<RegisterTeamUseCase>();
         services.AddScoped<SendEmailVerificationUseCase>();
         services.AddScoped<ConfirmMemberEmailUseCase>();
+        services.AddScoped<GenerateNewRefreshTokenUseCase>();
+
+        services.AddScoped<ClaimsPrincipal>();
         
         return services;
     }
