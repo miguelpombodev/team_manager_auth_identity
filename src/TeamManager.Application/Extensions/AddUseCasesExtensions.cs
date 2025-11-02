@@ -27,6 +27,7 @@ public static class AddUseCasesExtensions
         services.AddScoped<IUseCase<MemberValidationLinkAndToken, Result<bool>>, SendEmailVerificationUseCase>();
         services.AddScoped<IUseCase<Guid, Result<bool>>, ConfirmMemberEmailUseCase>();
         services.AddScoped<IUseCase<Result<AuthResult>>, GenerateNewRefreshTokenUseCase>();
+        services.AddScoped<IUseCase<ResetPasswordRequest,Result>, ResetPasswordUseCase>();
 
         services.AddScoped<RegisterTeamMemberUseCase>();
         services.AddScoped<LoginTeamMemberUseCase>();
@@ -34,6 +35,7 @@ public static class AddUseCasesExtensions
         services.AddScoped<SendEmailVerificationUseCase>();
         services.AddScoped<ConfirmMemberEmailUseCase>();
         services.AddScoped<GenerateNewRefreshTokenUseCase>();
+        services.AddScoped<ResetPasswordUseCase>();
 
         services.AddScoped<ClaimsPrincipal>();
         
