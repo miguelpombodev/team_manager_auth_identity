@@ -54,8 +54,12 @@ public class Jwt
         };
     }
 
-    public SecurityTokenDescriptor BuildTokenDescriptor(SigningCredentials credentials, ApplicationAuthUser user,
-        IList<string> roles, List<UserTeam> userTeams)
+    public SecurityTokenDescriptor BuildTokenDescriptor(
+        SigningCredentials credentials,
+        ApplicationAuthUser user,
+        IList<string> roles,
+        List<UserTeam> userTeams
+    )
     {
         List<Claim> claims =
         [
