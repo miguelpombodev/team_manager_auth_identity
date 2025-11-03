@@ -50,7 +50,7 @@ if (app.Environment.IsDevelopment())
     await dbContext.Database.MigrateAsync();
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-    
+
     if (!await roleManager.RoleExistsAsync(Roles.SystemAdmin))
     {
         await roleManager.CreateAsync(new IdentityRole<Guid>(Roles.SystemAdmin));
@@ -70,6 +70,8 @@ if (app.Environment.IsDevelopment())
 app.UseRouting();
 app.UseStaticFiles();
 
+app.AddMiddlewares();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseHttpsRedirection();
@@ -80,10 +82,7 @@ app.MapHealthChecks("/api/health", new HealthCheckOptions
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
 
-app.MapHealthChecksUI(x =>
-    {
-        x.UIPath = "/health-dashboard";
-    }
+app.MapHealthChecksUI(x => { x.UIPath = "/health-dashboard"; }
 );
 
 await app.SeedDatabaseAsync();
