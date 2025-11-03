@@ -16,7 +16,7 @@ public static class TeamsEndpoints
     {
         var group = app.MapGroup("teams").WithTags("Teams").WithDescription("Teams Endpoints");
 
-        group.MapPost("create", async (
+        group.MapPost("/", async (
                 [FromBody] RegisterTeam request,
                 RegisterTeamUseCase useCase,
                 IAuthorizationService authService,
@@ -47,7 +47,7 @@ public static class TeamsEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet("teams", async (
+        group.MapGet("/", async (
                 ICurrentUserService currentUserService,
                 GetLoggedMemberTeams useCase
             ) =>
@@ -75,6 +75,46 @@ public static class TeamsEndpoints
                 return Results.Ok(result.Data);
             })
             .RequireAuthorization()
-            .WithName("GetLoggedMemberTeams");
+            .WithName("GetLoggedMemberTeams")
+            .WithSummary("List Teams of a specific member")
+            .WithDescription(
+                "List Teams of a specific member")
+            .Produces<Team>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapPost("/{id:guid}/members", async (
+                [FromBody] AddNewMemberInTeamRequest request,
+                IAuthorizationService authService,
+                ClaimsPrincipal user,
+                AddNewMemberInTeamUseCase useCase
+            ) =>
+            {
+                await authService.AuthorizeAsync(
+                    user,
+                    AuthPolicies.CanManageTeam
+                );
+
+                var result = await useCase.ExecuteAsync(request);
+
+                if (result.IsFailure)
+                {
+                    return Results.Problem(
+                        title: result.Error.Code,
+                        detail: result.Error.Description,
+                        statusCode: result.Error.StatusCode);
+                }
+
+                return Results.Created();
+            })
+            .AddEndpointFilter<ValidationFilter<AddNewMemberInTeamRequest>>()
+            .RequireAuthorization()
+            .WithName("AddNewMemberInTeam")
+            .WithSummary("Add a specific member into Team")
+            .WithDescription(
+                "Add a specific member into Team")
+            .Produces<Team>(StatusCodes.Status201Created)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 }

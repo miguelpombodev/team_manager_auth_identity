@@ -13,6 +13,13 @@ public class TeamRepository : ITeamRepository
         _context = context;
     }
 
+    public async Task<Team?> RetrieveTeamByIdAsync(Guid teamId)
+    {
+        var team = await _context.Teams.AsNoTracking().FirstOrDefaultAsync(x => x.Id == teamId);
+
+        return team;
+    }
+
     public async Task<List<Team>?> RetrieveTeamsByMemberIdAsync(Guid userId)
     {
         var teams = await _context.UserTeams.AsNoTracking().Where(x => x.UserId.Equals(userId)).Select(x => x.Team).ToListAsync();
@@ -28,4 +35,12 @@ public class TeamRepository : ITeamRepository
         
         return entity.Entity;
     }
+
+    public async Task<UserTeam> CreateUserTeamAsync(UserTeam userTeam)
+    {
+        var result = await _context.UserTeams.AddAsync(userTeam);
+
+        return result.Entity;
+    }
+    
 }

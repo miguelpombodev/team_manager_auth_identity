@@ -2,7 +2,7 @@ using TeamManager.Domain.Common.Abstraction;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Members.Abstractions;
 
-namespace TeamManager.Application.Features.Member;
+namespace TeamManager.Application.Features.Teams;
 
 public class GetLoggedMemberTeams : IUseCase<Guid, Result<List<Team>>>
 {
