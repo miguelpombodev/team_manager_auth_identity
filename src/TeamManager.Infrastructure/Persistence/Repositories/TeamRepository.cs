@@ -13,9 +13,9 @@ public class TeamRepository : ITeamRepository
         _context = context;
     }
 
-    public async Task<List<UserTeam>?> RetrieveTeamsByMemberIdAsync(Guid userId)
+    public async Task<List<Team>?> RetrieveTeamsByMemberIdAsync(Guid userId)
     {
-        var teams = await _context.UserTeams.AsNoTracking().Where(x => x.UserId.Equals(userId)).ToListAsync();
+        var teams = await _context.UserTeams.AsNoTracking().Where(x => x.UserId.Equals(userId)).Select(x => x.Team).ToListAsync();
 
         return teams;
     }

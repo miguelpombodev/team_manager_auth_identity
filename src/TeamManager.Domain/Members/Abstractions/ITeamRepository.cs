@@ -4,7 +4,7 @@ namespace TeamManager.Domain.Members.Abstractions;
 
 public interface ITeamRepository
 {
-    Task<List<UserTeam>?> RetrieveTeamsByMemberIdAsync(Guid userId);
+    Task<List<Team>?> RetrieveTeamsByMemberIdAsync(Guid userId);
     Task<Team> Create(Team team);
 
 }
