@@ -3,7 +3,7 @@ using TeamManager.Application.Contracts.Teams;
 
 namespace TeamManager.Application.Validators.Teams;
 
-public class RegisterTeamRequestValidator : AbstractValidator<RegisterTeam>
+public class RegisterTeamRequestValidator : AbstractValidator<RegisterTeamRequest>
 {
     private const string AvoidSpecialCharactersInTeamName = "^(?!'+$)[a-zA-Z\\s']+$";
 

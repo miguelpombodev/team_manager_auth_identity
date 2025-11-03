@@ -5,26 +5,25 @@
 namespace TeamManager.Infrastructure.Persistence.Migrations;
 
 /// <inheritdoc />
-public partial class AddRoleNameIntoUserTeamsTable : Migration
+public partial class AddDescriptionColumnInTeamsTable : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.AddColumn<string>(
-            name: "role_name",
+            name: "team_description",
             schema: "TeamManager",
-            table: "UserTeams",
-            type: "VARCHAR(50)",
-            nullable: false,
-            defaultValue: "");
+            table: "Teams",
+            type: "VARCHAR(200)",
+            nullable: true);
     }
 
     /// <inheritdoc />
     protected override void Down(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.DropColumn(
-            name: "role_name",
+            name: "team_description",
             schema: "TeamManager",
-            table: "UserTeams");
+            table: "Teams");
     }
 }

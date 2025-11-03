@@ -2,10 +2,11 @@ using TeamManager.Application.Contracts.Teams;
 using TeamManager.Domain.Common.Abstraction;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Members.Abstractions;
+using TeamManager.Domain.Teams.Errors;
 
 namespace TeamManager.Application.Features.Teams;
 
-public class RegisterTeamUseCase : IUseCase<RegisterTeam, Result<Team>>
+public class RegisterTeamUseCase : IUseCase<RegisterTeamRequest, Result<Team>>
 {
     private readonly ITeamRepository _teamRepository;
 
@@ -14,11 +15,18 @@ public class RegisterTeamUseCase : IUseCase<RegisterTeam, Result<Team>>
         _teamRepository = teamRepository;
     }
 
-    public async Task<Result<Team>> ExecuteAsync(RegisterTeam request)
+    public async Task<Result<Team>> ExecuteAsync(RegisterTeamRequest request)
     {
-        var team = Team.Build(request.TeamName);
+        var team = await _teamRepository.RetrieveTeamByNameAsync(request.TeamName);
 
-        var createdTeam = await _teamRepository.Create(team);
+        if (team is not null)
+        {
+            return Result<Team>.Failure(TeamErrors.TeamAlreadyExists);
+        }
+        
+        var buildedTeam = Team.Build(request.TeamName, request.Description);
+
+        var createdTeam = await _teamRepository.Create(buildedTeam);
 
         return Result<Team>.Success(createdTeam);
     }

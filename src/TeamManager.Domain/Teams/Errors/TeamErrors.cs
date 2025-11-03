@@ -4,6 +4,11 @@ namespace TeamManager.Domain.Teams.Errors;
 
 public static class TeamErrors
 {
+    public static readonly Error TeamAlreadyExists = new Error(
+        "Team.TeamAlreadyExists",
+        409,
+        "Team already registered!");
+    
     public static readonly Error TeamNotFound = new Error(
         "Team.TeamNotFound",
         404,

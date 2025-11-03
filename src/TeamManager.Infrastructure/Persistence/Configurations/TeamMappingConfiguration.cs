@@ -13,6 +13,7 @@ public class TeamMappingConfiguration : IEntityTypeConfiguration<Team>
 
         builder.Property(t => t.Id).HasColumnName("id").HasColumnType("UUID").IsRequired();
         builder.Property(t => t.Name).HasColumnName("team_name").HasColumnType("VARCHAR(100)").IsRequired();
+        builder.Property(t => t.Description).HasColumnName("team_description").HasColumnType("VARCHAR(200)").HasDefaultValue(null);
         
         builder.HasIndex(t => t.Name).IsUnique();
     }

@@ -17,7 +17,7 @@ public static class TeamsEndpoints
         var group = app.MapGroup("teams").WithTags("Teams").WithDescription("Teams Endpoints");
 
         group.MapPost("/", async (
-                [FromBody] RegisterTeam request,
+                [FromBody] RegisterTeamRequest request,
                 RegisterTeamUseCase useCase,
                 IAuthorizationService authService,
                 ClaimsPrincipal user
@@ -39,7 +39,7 @@ public static class TeamsEndpoints
 
                 return Results.Created();
             })
-            .AddEndpointFilter<ValidationFilter<RegisterTeam>>()
+            .AddEndpointFilter<ValidationFilter<RegisterTeamRequest>>()
             .WithSummary("Register a new team")
             .WithDescription(
                 "Tries to create a new team, if its name is not already taken")

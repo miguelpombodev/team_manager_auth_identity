@@ -20,6 +20,13 @@ public class TeamRepository : ITeamRepository
         return team;
     }
 
+    public async Task<Team?> RetrieveTeamByNameAsync(string teamName)
+    {
+        var team = await _context.Teams.AsNoTracking().FirstOrDefaultAsync(x => x.Name == teamName);
+
+        return team;
+    }
+
     public async Task<List<Team>?> RetrieveTeamsByMemberIdAsync(Guid userId)
     {
         var teams = await _context.UserTeams.AsNoTracking().Where(x => x.UserId.Equals(userId)).Select(x => x.Team)

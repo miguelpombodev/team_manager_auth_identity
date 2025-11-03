@@ -23,7 +23,7 @@ public static class AddUseCasesExtensions
         services.AddScoped<IUseCase<RegisterTeamMember, Result<EmailVerificationToken>>, RegisterTeamMemberUseCase>();
         services
             .AddScoped<IUseCase<AuthBaseRequest, Result<(AuthResult, ApplicationAuthUser)>>, LoginTeamMemberUseCase>();
-        services.AddScoped<IUseCase<RegisterTeam, Result<Team>>, RegisterTeamUseCase>();
+        services.AddScoped<IUseCase<RegisterTeamRequest, Result<Team>>, RegisterTeamUseCase>();
         services.AddScoped<IUseCase<MemberValidationLinkAndToken, Result<bool>>, SendEmailVerificationUseCase>();
         services.AddScoped<IUseCase<Guid, Result<bool>>, ConfirmMemberEmailUseCase>();
         services.AddScoped<IUseCase<Result<AuthResult>>, GenerateNewRefreshTokenUseCase>();
