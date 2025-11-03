@@ -8,4 +8,9 @@ public static class TeamErrors
         "Team.TeamNotFound",
         404,
         "Team not found");
+    
+    public static readonly Error TeamNotAbleToBeDelete = new Error(
+        "Team.TeamNotAbleToBeDelete",
+        409,
+        "Team could not be deleted");
 }

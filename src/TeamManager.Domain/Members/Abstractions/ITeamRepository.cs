@@ -8,4 +8,5 @@ public interface ITeamRepository
     Task<List<Team>?> RetrieveTeamsByMemberIdAsync(Guid userId);
     Task<Team> Create(Team team);
     Task<UserTeam> CreateUserTeamAsync(UserTeam userTeam);
+    Task<int> RemoveMemberFromTeamAsync(Guid memberId, Guid teamId);
 }

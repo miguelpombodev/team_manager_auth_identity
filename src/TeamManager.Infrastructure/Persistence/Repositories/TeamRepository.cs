@@ -22,7 +22,8 @@ public class TeamRepository : ITeamRepository
 
     public async Task<List<Team>?> RetrieveTeamsByMemberIdAsync(Guid userId)
     {
-        var teams = await _context.UserTeams.AsNoTracking().Where(x => x.UserId.Equals(userId)).Select(x => x.Team).ToListAsync();
+        var teams = await _context.UserTeams.AsNoTracking().Where(x => x.UserId.Equals(userId)).Select(x => x.Team)
+            .ToListAsync();
 
         return teams;
     }
@@ -32,7 +33,7 @@ public class TeamRepository : ITeamRepository
         var entity = await _context.Teams.AddAsync(team);
 
         await _context.SaveChangesAsync();
-        
+
         return entity.Entity;
     }
 
@@ -42,5 +43,12 @@ public class TeamRepository : ITeamRepository
 
         return result.Entity;
     }
-    
+
+    public Task<int> RemoveMemberFromTeamAsync(Guid memberId, Guid teamId)
+    {
+        var result = _context.UserTeams.Where(x => x.UserId == memberId && x.TeamId == teamId)
+            .ExecuteDeleteAsync();
+
+        return result;
+    }
 }

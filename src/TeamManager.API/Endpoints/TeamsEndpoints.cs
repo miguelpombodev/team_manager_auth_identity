@@ -114,6 +114,43 @@ public static class TeamsEndpoints
             .WithDescription(
                 "Add a specific member into Team")
             .Produces<Team>(StatusCodes.Status201Created)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status409Conflict)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapDelete("/{id:guid}/members/{memberId:guid}", async (
+                Guid teamId,
+                Guid memberId,
+                IAuthorizationService authService,
+                ClaimsPrincipal user,
+                DeleteMemberFromTeam useCase
+            ) =>
+            {
+                await authService.AuthorizeAsync(
+                    user,
+                    AuthPolicies.CanManageTeam
+                );
+
+                var request = new RemoveMemberFromTeamRequest(teamId, memberId);
+                var result = await useCase.ExecuteAsync(request);
+
+                if (result.IsFailure)
+                {
+                    return Results.Problem(
+                        title: result.Error.Code,
+                        detail: result.Error.Description,
+                        statusCode: result.Error.StatusCode);
+                }
+
+                return Results.NoContent();
+            })
+            .RequireAuthorization()
+            .WithName("DeleteMemberFromTeam")
+            .WithSummary("Remove a specific member from Team")
+            .WithDescription(
+                "Remove a specific member from Team")
+            .Produces<Team>(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }

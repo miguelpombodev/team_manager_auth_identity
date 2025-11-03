@@ -27,9 +27,10 @@ public static class AddUseCasesExtensions
         services.AddScoped<IUseCase<MemberValidationLinkAndToken, Result<bool>>, SendEmailVerificationUseCase>();
         services.AddScoped<IUseCase<Guid, Result<bool>>, ConfirmMemberEmailUseCase>();
         services.AddScoped<IUseCase<Result<AuthResult>>, GenerateNewRefreshTokenUseCase>();
-        services.AddScoped<IUseCase<ResetPasswordRequest,Result>, ResetPasswordUseCase>();
+        services.AddScoped<IUseCase<ResetPasswordRequest, Result>, ResetPasswordUseCase>();
         services.AddScoped<IUseCase<Guid, Result<List<Team>>>, GetLoggedMemberTeams>();
         services.AddScoped<IUseCase<AddNewMemberInTeamRequest, Result<UserTeam>>, AddNewMemberInTeamUseCase>();
+        services.AddScoped<IUseCase<RemoveMemberFromTeamRequest, Result>, DeleteMemberFromTeam>();
 
         services.AddScoped<RegisterTeamMemberUseCase>();
         services.AddScoped<LoginTeamMemberUseCase>();
@@ -40,9 +41,10 @@ public static class AddUseCasesExtensions
         services.AddScoped<ResetPasswordUseCase>();
         services.AddScoped<GetLoggedMemberTeams>();
         services.AddScoped<AddNewMemberInTeamUseCase>();
+        services.AddScoped<DeleteMemberFromTeam>();
 
         services.AddScoped<ClaimsPrincipal>();
-        
+
         return services;
     }
 }
