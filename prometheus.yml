@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'team_manager_api'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['team_manager_api:8000']
+    scrape_timeout: 5s

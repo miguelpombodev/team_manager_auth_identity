@@ -150,7 +150,7 @@ services:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
-      - ../grafana:/var/lib/grafana
+      - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus
     networks:
@@ -163,4 +163,5 @@ networks:
 volumes:
   pgdata:
   rabbitmq_data:
+  grafana_data:
     
