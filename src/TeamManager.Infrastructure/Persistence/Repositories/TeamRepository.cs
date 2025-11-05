@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using TeamManager.Application.Contracts.Teams;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Members.Abstractions;
+using TeamManager.Domain.Teams.DTOs;
 
 namespace TeamManager.Infrastructure.Persistence.Repositories;
 
@@ -55,6 +57,24 @@ public class TeamRepository : ITeamRepository
     {
         var result = _context.UserTeams.Where(x => x.UserId == memberId && x.TeamId == teamId)
             .ExecuteDeleteAsync();
+
+        return result;
+    }
+
+    public async Task<TeamDetailsDto?> RetrieveTeamDetails(Guid teamId)
+    {
+        var result = await _context.Teams.AsNoTracking().Where(team => team.Id == teamId).Select(team =>
+            new TeamDetailsDto
+            (
+                team.Name,
+                team.Description,
+                team.UserTeams.Select(userTeam => new TeamMemberDto(
+                    userTeam.User.Id,
+                    userTeam.User.Email,
+                    userTeam.User.UserComplements.FullName,
+                    userTeam.RoleName
+                )).ToList()
+            )).FirstOrDefaultAsync();
 
         return result;
     }

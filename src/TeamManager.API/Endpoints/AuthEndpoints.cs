@@ -1,18 +1,15 @@
-using System.Security.Claims;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Serilog;
 using TeamManager.API.Generator;
 using TeamManager.Application.Contracts.Auth;
 using TeamManager.Application.Contracts.Members;
 using TeamManager.Application.Features.Auth;
 using TeamManager.Application.Features.Member;
 using TeamManager.Domain.Entities;
-using TeamManager.Domain.Members.Abstractions;
-using TeamManager.Domain.Members.Entities;
 using TeamManager.Domain.Providers.Authentication.Abstractions;
 using TeamManager.Domain.Providers.Authentication.Entities;
+using TeamManager.Domain.Settings;
 
 namespace TeamManager.API.Endpoints;
 
@@ -68,8 +65,9 @@ public static class AuthEndpoints
                     [FromBody] AuthBaseRequest request,
                     IValidator<AuthBaseRequest> validator,
                     LoginTeamMemberUseCase useCase,
-                    SignInManager<ApplicationAuthUser> signInManager,
-                    UserManager<ApplicationAuthUser> userManager) =>
+                    UserManager<ApplicationAuthUser> userManager,
+                    HttpContext httpContext,
+                    IJwtSettings jwtSettings) =>
                 {
                     var validationResult = await validator.ValidateAsync(request);
 
@@ -94,14 +92,27 @@ public static class AuthEndpoints
                             statusCode: result.Error.StatusCode);
                     }
 
-                    await signInManager.SignInAsync(result.Data.Item2, isPersistent: true);
                     await userManager.SetAuthenticationTokenAsync(
-                        result.Data.Item2,
+                        result.Data.User,
                         LoginProvider,
                         TokenName,
-                        result.Data.Item1.RefreshToken);
+                        result.Data.Tokens.RefreshToken);
 
-                    return Results.Ok(result.Data.Item1);
+                    var cookieOptions = new CookieOptions
+                    {
+                        HttpOnly = true, // Impede acesso via JavaScript (Segurança XSS)
+                        Secure = true, // Enviar apenas em HTTPS
+                        SameSite = SameSiteMode.Strict, // Melhor proteção CSRF
+                        Expires = DateTime.UtcNow.AddMinutes(jwtSettings
+                            .ExpirationInMinutes) // Deve ser igual à expiração do JWT
+                    };
+
+                    httpContext.Response.Cookies.Append(
+                        "access_token",
+                        result.Data.Tokens.AccessToken,
+                        cookieOptions);
+
+                    return Results.Ok(result.Data.Tokens);
                 })
             .AddEndpointFilter<ValidationFilter<AuthBaseRequest>>()
             .WithSummary("Login Member and return a cookie")
@@ -154,10 +165,29 @@ public static class AuthEndpoints
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status500InternalServerError);
 
-        group.MapPost("reset-password", async () =>
-        {
+        group.MapPost("reset-password", async (
+                ResetPasswordRequest request,
+                ResetPasswordUseCase useCase
+            ) =>
+            {
+                var resetPasswordResult = await useCase.ExecuteAsync(request);
 
-        });
+                if (resetPasswordResult.IsFailure)
+                {
+                    return Results.Problem(
+                        title: resetPasswordResult.Error.Code,
+                        detail: resetPasswordResult.Error.Description,
+                        statusCode: resetPasswordResult.Error.StatusCode);
+                }
+
+                return Results.Created(
+                );
+            })
+            .AddEndpointFilter<ValidationFilter<ResetPasswordRequest>>()
+            .WithSummary("Generates a new refresh token")
+            .WithDescription("Tries to create a new refresh token")
+            .Produces(StatusCodes.Status201Created)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status500InternalServerError);
     }
-    
 }

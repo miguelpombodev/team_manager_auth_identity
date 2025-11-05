@@ -22,6 +22,10 @@ public class ResponseMiddleware
     
     public async Task InvokeAsync(HttpContext context)
     {
+        if (context.Response.StatusCode == 201)
+        {
+            await _next(context);
+        }
         var originalBodyStream = context.Response.Body;
 
         try

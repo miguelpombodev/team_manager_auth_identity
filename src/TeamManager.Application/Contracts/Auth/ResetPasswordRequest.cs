@@ -1,3 +1,3 @@
 namespace TeamManager.Application.Contracts.Auth;
 
-public record ResetPasswordRequest(string NewPassword);
+public record ResetPasswordRequest(string UserEmail, string NewPassword);

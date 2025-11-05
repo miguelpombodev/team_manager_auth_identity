@@ -16,7 +16,7 @@ public class MemberRepository : IMemberRepository
 
     public async Task<ApplicationAuthUser?> RetrieveEntityByIdAsync(Guid id)
     {
-        var entity = await _context.Users.FirstOrDefaultAsync(user => user.Id.Equals(id));
+        var entity = await _context.Users.AsNoTracking().FirstOrDefaultAsync(user => user.Id.Equals(id));
 
         return entity;
     }

@@ -8,6 +8,11 @@ public static class AuthenticationErrors
         "Account.UserNotFound",
         404,
         "User not found");
+    
+    public static readonly Error UserActionNotAuthorized = new Error(
+        "Account.UserActionNotAuthorized",
+        403,
+        "User cannot perform the specific action");
 
     public static readonly Error RefreshTokenNotFound = new(
         "Authentication.RefreshTokenNotFound",

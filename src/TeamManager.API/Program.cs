@@ -89,5 +89,6 @@ await app.SeedDatabaseAsync();
 
 AuthEndpoints.MapEndpoints(app);
 TeamsEndpoints.MapEndpoints(app);
+MembersEndpoints.MapEndpoints(app);
 
 await app.RunAsync();

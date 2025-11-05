@@ -12,5 +12,8 @@ public class AddNewMemberInTeamRequestValidator : AbstractValidator<AddNewMember
 
         RuleFor(x => x.TeamId).NotEmpty().WithMessage("Team Id cannot be empty").NotNull()
             .WithMessage("Team Id cannot be null");
+        
+        RuleFor(x => x.RoleName).NotEmpty().WithMessage("Role name cannot be empty").NotNull()
+            .WithMessage("Role name cannot be null");
     }
 }

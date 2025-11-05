@@ -11,42 +11,27 @@ namespace TeamManager.Application.Features.Auth;
 public class ResetPasswordUseCase : IUseCase<ResetPasswordRequest, Result>
 {
     private readonly UserManager<ApplicationAuthUser> _userManager;
-    private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<ResetPasswordUseCase> _logger;
 
     public ResetPasswordUseCase(
         UserManager<ApplicationAuthUser> userManager,
-        ICurrentUserService currentUserService,
         ILogger<ResetPasswordUseCase> logger
     )
     {
         _userManager = userManager;
-        _currentUserService = currentUserService;
         _logger = logger;
     }
 
     public async Task<Result> ExecuteAsync(ResetPasswordRequest request)
     {
-        var userClaimsPrincipal = _currentUserService.User;
-
-        if (userClaimsPrincipal is null)
-        {
-            _logger.LogWarning(
-                "[WARNING] There was an unsucessful attempt to generate a new refresh token with a authenticated user (Nullable ClaimsPrincipal)."
-            );
-
-            return Result.Failure(AuthenticationErrors.UserAccountNotFound);
-        }
-
-        var getUserResult = await _userManager.GetUserAsync(
-            userClaimsPrincipal
+        var getUserResult = await _userManager.FindByEmailAsync(
+            request.UserEmail
         );
 
         if (getUserResult is null)
         {
             _logger.LogWarning(
-                "[WARNING] There was an unsucessful attempt to log with {User}, please check its informations",
-                userClaimsPrincipal
+                "[WARNING] There was an unsucessful attempt to reset a password with a wrong email address"
             );
 
             return Result.Failure(AuthenticationErrors.UserAccountNotFound);

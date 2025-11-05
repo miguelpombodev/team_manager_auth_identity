@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TeamManager.Application.Contracts.Teams;
@@ -6,6 +7,7 @@ using TeamManager.Application.Features.Member;
 using TeamManager.Application.Features.Teams;
 using TeamManager.Domain.Common.Auth;
 using TeamManager.Domain.Entities;
+using TeamManager.Domain.Members.Errors;
 using TeamManager.Domain.Providers.Authentication.Abstractions;
 
 namespace TeamManager.API.Endpoints;
@@ -23,7 +25,15 @@ public static class TeamsEndpoints
                 ClaimsPrincipal user
             ) =>
             {
-                await authService.AuthorizeAsync(user, AuthPolicies.CanCreateTeam);
+                var authorizeResult = await authService.AuthorizeAsync(user, AuthPolicies.CanCreateTeam);
+
+                if (!authorizeResult.Succeeded)
+                {
+                    return Results.Problem(
+                        title: AuthenticationErrors.UserActionNotAuthorized.Code,
+                        detail: AuthenticationErrors.UserActionNotAuthorized.Description,
+                        statusCode: StatusCodes.Status403Forbidden);
+                }
 
                 var result = await useCase.ExecuteAsync(
                     request
@@ -83,19 +93,68 @@ public static class TeamsEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapPost("/{id:guid}/members", async (
+        group.MapGet("/{teamId:guid}", async (
+                Guid teamId,
+                GetTeamsDetails useCase
+            ) =>
+            {
+                var result = await useCase.ExecuteAsync(teamId);
+
+                if (result.IsFailure)
+                {
+                    return Results.Problem(
+                        title: result.Error.Code,
+                        detail: result.Error.Description,
+                        statusCode: result.Error.StatusCode);
+                }
+
+                return Results.Ok(result.Data);
+            })
+            .RequireAuthorization()
+            .WithName("GetTeamDetails")
+            .WithSummary("Return a team details")
+            .WithDescription(
+                "Return all details of a specific team, like its name, description and members in it")
+            .Produces<Team>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        group.MapPost("/{teamId:guid}/members", async (
+                Guid teamId,
                 [FromBody] AddNewMemberInTeamRequest request,
                 IAuthorizationService authService,
                 ClaimsPrincipal user,
-                AddNewMemberInTeamUseCase useCase
+                AddNewMemberInTeamUseCase useCase,
+                IValidator<AddNewMemberInTeamRequest> validator
             ) =>
             {
-                await authService.AuthorizeAsync(
+                var authorizeResult = await authService.AuthorizeAsync(
                     user,
+                    teamId,
                     AuthPolicies.CanManageTeam
                 );
 
-                var result = await useCase.ExecuteAsync(request);
+                if (!authorizeResult.Succeeded)
+                {
+                    return Results.Problem(
+                        title: AuthenticationErrors.UserActionNotAuthorized.Code,
+                        detail: AuthenticationErrors.UserActionNotAuthorized.Description,
+                        statusCode: StatusCodes.Status403Forbidden);
+                }
+
+                var addNewMemberInTeamRequest = request with { TeamId = teamId };
+
+                var validationResult = await validator.ValidateAsync(addNewMemberInTeamRequest);
+
+                if (!validationResult.IsValid)
+                {
+                    return Results.Problem(
+                        title: AuthenticationErrors.UserActionNotAuthorized.Code,
+                        detail: AuthenticationErrors.UserActionNotAuthorized.Description,
+                        statusCode: 400);
+                }
+
+                var result = await useCase.ExecuteAsync(addNewMemberInTeamRequest);
 
                 if (result.IsFailure)
                 {
@@ -107,7 +166,6 @@ public static class TeamsEndpoints
 
                 return Results.Created();
             })
-            .AddEndpointFilter<ValidationFilter<AddNewMemberInTeamRequest>>()
             .RequireAuthorization()
             .WithName("AddNewMemberInTeam")
             .WithSummary("Add a specific member into Team")
@@ -118,7 +176,7 @@ public static class TeamsEndpoints
             .ProducesProblem(StatusCodes.Status409Conflict)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapDelete("/{id:guid}/members/{memberId:guid}", async (
+        group.MapDelete("/{teamId:guid}/members/{memberId:guid}", async (
                 Guid teamId,
                 Guid memberId,
                 IAuthorizationService authService,
@@ -126,10 +184,18 @@ public static class TeamsEndpoints
                 DeleteMemberFromTeam useCase
             ) =>
             {
-                await authService.AuthorizeAsync(
+                var authorizeResult = await authService.AuthorizeAsync(
                     user,
                     AuthPolicies.CanManageTeam
                 );
+
+                if (!authorizeResult.Succeeded)
+                {
+                    return Results.Problem(
+                        title: AuthenticationErrors.UserActionNotAuthorized.Code,
+                        detail: AuthenticationErrors.UserActionNotAuthorized.Description,
+                        statusCode: StatusCodes.Status403Forbidden);
+                }
 
                 var request = new RemoveMemberFromTeamRequest(teamId, memberId);
                 var result = await useCase.ExecuteAsync(request);

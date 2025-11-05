@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
@@ -25,6 +26,8 @@ public static class AuthenticationServiceExtension
         var jwtSettings = configuration.GetSection("Jwt")
                               .Get<JwtSettings>() ??
                           throw new InvalidOperationException("Jwt configuration is missing.");
+        
+        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
         var tokenValidationParams = new TokenValidationParameters
         {
@@ -57,8 +60,8 @@ public static class AuthenticationServiceExtension
 
         services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-                options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddCookie(IdentityConstants.ApplicationScheme, options =>
             {

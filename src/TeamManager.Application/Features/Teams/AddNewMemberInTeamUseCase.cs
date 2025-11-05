@@ -61,7 +61,7 @@ public class AddNewMemberInTeamUseCase : IUseCase<AddNewMemberInTeamRequest, Res
             return Result<UserTeam>.Failure(TeamErrors.TeamNotFound);
         }
 
-        var userTeam = UserTeam.Build(request.MemberId, request.TeamId);
+        var userTeam = UserTeam.Build(request.MemberId, request.TeamId, request.RoleName);
 
         var entityResult = await _teamRepository.CreateUserTeamAsync(userTeam);
 
@@ -70,8 +70,8 @@ public class AddNewMemberInTeamUseCase : IUseCase<AddNewMemberInTeamRequest, Res
             "[CREATED] A new UserTeam has been created successfully - UserTeam - {UserTeamProperties}",
             new
             {
-                UserInsertedInTeam = userTeam.User.UserName,
-                Team = userTeam.Team.Name
+                UserInsertedInTeam = userTeam.UserId,
+                Team = userTeam.TeamId
             }
         );
 

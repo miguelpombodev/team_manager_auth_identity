@@ -53,32 +53,4 @@ public class Jwt
             Audience = _jwtSettings.Audience,
         };
     }
-
-    public SecurityTokenDescriptor BuildTokenDescriptor(
-        SigningCredentials credentials,
-        ApplicationAuthUser user,
-        IList<string> roles,
-        List<UserTeam> userTeams
-    )
-    {
-        List<Claim> claims =
-        [
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-            ..userTeams.Select(x => new Claim(ClaimValueTypes.String, x.TeamId.ToString())),
-            ..roles.Select(x => new Claim(ClaimTypes.Role, x))
-        ];
-
-        var now = DateTime.UtcNow;
-
-        return new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(claims),
-            NotBefore = now.AddSeconds(-30),
-            Expires = now.AddMinutes(_jwtSettings.ExpirationInMinutes),
-            SigningCredentials = credentials,
-            Issuer = _jwtSettings.Issuer,
-            Audience = _jwtSettings.Audience,
-        };
-    }
 }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using TeamManager.Application.Contracts.Auth;
 using TeamManager.Domain.Common.Abstraction;
+using TeamManager.Domain.Common.Auth;
 using TeamManager.Domain.Entities;
 using TeamManager.Domain.Members.Abstractions;
 using TeamManager.Domain.Members.Errors;
@@ -9,7 +10,7 @@ using TeamManager.Domain.Providers.Authentication.Entities;
 
 namespace TeamManager.Application.Features.Auth;
 
-public class LoginTeamMemberUseCase : IUseCase<AuthBaseRequest, Result<(AuthResult, ApplicationAuthUser)>>
+public class LoginTeamMemberUseCase : IUseCase<AuthBaseRequest, Result<LoginResult>>
 {
     private readonly IMemberRepository _memberRepository;
     private readonly ITeamRepository _teamRepository;
@@ -29,13 +30,13 @@ public class LoginTeamMemberUseCase : IUseCase<AuthBaseRequest, Result<(AuthResu
         _teamRepository = teamRepository;
     }
 
-    public async Task<Result<(AuthResult, ApplicationAuthUser)>> ExecuteAsync(AuthBaseRequest request)
+    public async Task<Result<LoginResult>> ExecuteAsync(AuthBaseRequest request)
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
         
         if (user is null || !await _userManager.CheckPasswordAsync(user, request.Password))
         {
-            return Result<(AuthResult, ApplicationAuthUser)>.Failure(AuthenticationErrors.UserAccountNotFound);
+            return Result<LoginResult>.Failure(AuthenticationErrors.UserAccountNotFound);
         }
         var globalRoles = await _userManager.GetRolesAsync(user);
         var userTeamRole = await _memberRepository.RetrieveTeamMemberRolesByEntity(user);
@@ -45,6 +46,8 @@ public class LoginTeamMemberUseCase : IUseCase<AuthBaseRequest, Result<(AuthResu
 
         var auth = AuthResult.Create(accessToken, refreshToken);
 
-        return Result<(AuthResult, ApplicationAuthUser)>.Success(data: (auth, user));
+        var result = LoginResult.Build(user, auth);
+
+        return Result<LoginResult>.Success(result);
     }
 }
