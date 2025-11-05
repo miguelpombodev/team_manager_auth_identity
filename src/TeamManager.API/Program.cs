@@ -2,6 +2,10 @@ using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using TeamManager.API.Endpoints;
 using TeamManager.API.Extensions;
 using TeamManager.Application.Extensions;
@@ -36,6 +40,28 @@ builder.Services
     .AddHealthChecksServices(configuration)
     .AddSwaggerGen();
 
+builder.Logging.AddOpenTelemetry(logging =>
+{
+    logging.IncludeScopes = true;
+    logging.IncludeFormattedMessage = true;
+});
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(r => r.AddService("TeamManager.API"))
+    .WithMetrics(metrics => metrics
+        .AddAspNetCoreInstrumentation()
+        .AddHttpClientInstrumentation()
+        .AddNpgsqlInstrumentation()
+        .AddPrometheusExporter()
+    )
+    .WithTracing(traces =>
+        traces.AddHttpClientInstrumentation()
+            .AddAspNetCoreInstrumentation()
+            .AddEntityFrameworkCoreInstrumentation()
+            .AddNpgsql()
+            .AddOtlpExporter()
+    );
+
 var app = builder.Build();
 
 app.AddSerilog();
@@ -67,14 +93,18 @@ if (app.Environment.IsDevelopment())
     }
 }
 
+
 app.UseRouting();
 app.UseStaticFiles();
+
+app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
 app.AddMiddlewares();
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseHttpsRedirection();
+
 
 app.MapHealthChecks("/api/health", new HealthCheckOptions
 {

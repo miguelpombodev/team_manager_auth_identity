@@ -1,6 +1,55 @@
 version: "3.4"
 
 services:
+  team_manager_api:
+    build:
+      context: .
+    container_name: team_manager_api 
+    platform: linux/amd64
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8000
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_started
+      database:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      strapi:
+        condition: service_started
+      email_sender:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    networks:
+      - tm_net
+    
+#  healthchecks_ui:
+#    image: xabarilcoding/healthchecksui:latest
+#    container_name: team_manager_healthchecks_ui
+#    ports:
+#      - "8080:80"
+#    environment:
+#      - HealthChecksUI__HealthChecks__0__Name=Team Manager API
+#      - HealthChecksUI__HealthChecks__0__Uri=http://team_manager_api:8000/api/health
+#      - HealthChecksUI__EvaluationTimeInSeconds=10
+#      - HealthChecksUI__MaximumHistoryEntriesPerEndpoint=50
+#      - HealthChecksUI__MinimumSecondsBetweenFailureNotifications=60
+#    depends_on:
+#      team_manager_api:
+#        condition: service_healthy
+#    networks:
+#      - tm_net
+#    restart: unless-stopped
+    
   database:
     image: postgres
     platform: linux/amd64
@@ -18,8 +67,10 @@ services:
       - tm_net
     environment:
       - POSTGRES_PASSWORD=docker123
+      - POSTGRES_DB=TeamManager
     volumes:
       - pgdata:/var/lib/postgresql/data
+    
   redis:
     image: redis
     platform: linux/amd64
@@ -30,6 +81,7 @@ services:
     networks:
       - tm_net
     command: redis-server --requirepass TeamManagerRedis123!
+    
   rabbitmq:
     image: rabbitmq:3.12-management
     platform: linux/amd64
@@ -44,6 +96,13 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin123
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+      
   email_sender:
     image: wallghost/email-sender-subscriber:latest
     container_name: team_manager_email_sender
@@ -52,6 +111,7 @@ services:
     restart: on-failure
     depends_on:
       - rabbitmq
+
   strapi:
     image: strapi/strapi
     container_name: team_manager_strapi_crm
@@ -69,6 +129,32 @@ services:
       - "1337:1337"
     depends_on:
       - database
+    
+  prometheus:
+    image: prom/prometheus
+    container_name: team_manager_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - tm_net
+
+  grafana:
+    image: grafana/grafana
+    container_name: team_manager_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ../grafana:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - tm_net
 
 networks:
   tm_net:

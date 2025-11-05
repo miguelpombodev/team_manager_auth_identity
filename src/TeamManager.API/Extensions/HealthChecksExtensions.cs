@@ -1,5 +1,6 @@
 using TeamManager.Infrastructure.Configurations;
-using TeamManager.Infrastructure.Persistence;
+using HealthChecks.UI.Configuration;
+using System;
 
 namespace TeamManager.API.Extensions;
 
@@ -36,20 +37,7 @@ public static class HealthChecksExtensions
                 name: "Team Manager Redis instance",
                 tags: ["db", "data", "nosql"]
             );
-
-        services.AddHealthChecksUI(x =>
-            {
-                // Defines the interval to trigger the services verification
-                x.SetEvaluationTimeInSeconds(5);
-
-                // Defines a max registries value that will be allowed in history 
-                x.MaximumHistoryEntriesPerEndpoint(10);
-
-                // Defines the HealthCheck endpoint
-                x.AddHealthCheckEndpoint("HealthCheck Endpoint", "/api/health");
-            })
-            .AddInMemoryStorage();
-
+        
         return services;
     }
 }
