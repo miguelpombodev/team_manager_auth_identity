@@ -20,17 +20,37 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarscanner-dotnet-action@v2
+          
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
-          solutionFile: 'src/TeamManager.sln'
-          
-          projectKey: 'miguelpombodev_team_manager_auth_identity'
-          
-          organization: 'miguelpombodev'
+          dotnet-version: '9.0.x' 
 
+      - name: Install Java for SonarScanner
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install dotnet-sonarscanner global tool
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Begin SonarQube Analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
+        run: |
+          dotnet sonarscanner begin /k:"MyProjectKey" /o:"MyOrganizationKey" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+      - name: Build .NET Project
+        run: dotnet build --no-incremental
+  
+      - name: End SonarQube Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
+      - name: SonarQube Quality Gate Check
+        uses: SonarSource/sonarqube-quality-gate-action@v1.2 
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
