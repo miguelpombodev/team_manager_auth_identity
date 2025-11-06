@@ -5,7 +5,7 @@ on:
     branches:
       - main
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
     branches:
       - main
       - development
@@ -25,9 +25,12 @@ jobs:
         uses: SonarSource/sonarscanner-dotnet-action@v2
         with:
           solutionFile: 'src/TeamManager.sln'
+          
           projectKey: 'miguelpombodev_team_manager_auth_identity'
+          
           organization: 'miguelpombodev'
 
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
