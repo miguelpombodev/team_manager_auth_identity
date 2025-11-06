@@ -1,0 +1,26 @@
+name: Orchestrator CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  call-test-workflow:
+    name: 1. Run Tests
+    uses: ./.github/workflows/sonarqube-action.yml
+  call-build-workflow:
+    name: 2. Build and Push Image
+    needs: call-test-workflow
+    
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/docker-image.yml
+    secrets:
+      DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      CONTAINER_TAG_NAME: ${{ vars.CONTAINER_TAG_NAME }}
