@@ -1,6 +1,7 @@
 using TeamManager.Infrastructure.Configurations;
 using HealthChecks.UI.Configuration;
 using System;
+using RabbitMQ.Client;
 
 namespace TeamManager.API.Extensions;
 
@@ -12,8 +13,11 @@ public static class HealthChecksExtensions
     {
         var connectionStrings = configuration.GetSection("ConnectionStrings")
                                     .Get<ConnectionStringsSettings>() ??
-                                throw new InvalidOperationException("Configuração 'ConnectionStrings' não encontrada.");
+                                throw new InvalidOperationException("ConnectionStrings configuration was not founded.");
 
+        var rabbitMqSettings = configuration.GetSection("RabbitMqSettings").Get<RabbitMqSettings>() ??
+                               throw new InvalidOperationException("RabbitMQ Settings configuration was not founded.");
+        
         if (string.IsNullOrEmpty(connectionStrings.DatabaseConnectionString))
         {
             throw new InvalidOperationException(
@@ -36,8 +40,19 @@ public static class HealthChecksExtensions
                 connectionStrings.RedisConnectionString,
                 name: "Team Manager Redis instance",
                 tags: ["db", "data", "nosql"]
-            );
-        
+            )
+            .AddRabbitMQ(
+                serviceProvider => {
+                    var factory = new ConnectionFactory
+                    {
+                        Uri = new Uri(
+                            $"amqp://{rabbitMqSettings.RabbitMqUserName}:{rabbitMqSettings.RabbitMqPassword}@{rabbitMqSettings.RabbitMqHostName}:{rabbitMqSettings.RabbitMqPort}")
+                    };
+                    return factory.CreateConnectionAsync();
+                },
+                name: "Team Manager RabbitMQ instance",
+                tags: ["messagebroker", "queue", "rabbitmq"]);
+
         return services;
     }
 }

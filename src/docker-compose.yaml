@@ -32,23 +32,23 @@ services:
     networks:
       - tm_net
     
-#  healthchecks_ui:
-#    image: xabarilcoding/healthchecksui:latest
-#    container_name: team_manager_healthchecks_ui
-#    ports:
-#      - "8080:80"
-#    environment:
-#      - HealthChecksUI__HealthChecks__0__Name=Team Manager API
-#      - HealthChecksUI__HealthChecks__0__Uri=http://team_manager_api:8000/api/health
-#      - HealthChecksUI__EvaluationTimeInSeconds=10
-#      - HealthChecksUI__MaximumHistoryEntriesPerEndpoint=50
-#      - HealthChecksUI__MinimumSecondsBetweenFailureNotifications=60
-#    depends_on:
-#      team_manager_api:
-#        condition: service_healthy
-#    networks:
-#      - tm_net
-#    restart: unless-stopped
+  healthchecks_ui:
+    image: xabarilcoding/healthchecksui:latest
+    container_name: team_manager_healthchecks_ui
+    ports:
+      - "8080:80"
+    environment:
+      - HealthChecksUI__HealthChecks__0__Name=Team Manager API
+      - HealthChecksUI__HealthChecks__0__Uri=http://team_manager_api:8000/api/health
+      - HealthChecksUI__EvaluationTimeInSeconds=10
+      - HealthChecksUI__MaximumHistoryEntriesPerEndpoint=50
+      - HealthChecksUI__MinimumSecondsBetweenFailureNotifications=60
+    depends_on:
+      team_manager_api:
+        condition: service_healthy
+    networks:
+      - tm_net
+    restart: unless-stopped
     
   database:
     image: postgres

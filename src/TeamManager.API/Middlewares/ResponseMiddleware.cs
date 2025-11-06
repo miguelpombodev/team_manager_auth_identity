@@ -22,6 +22,12 @@ public class ResponseMiddleware
     
     public async Task InvokeAsync(HttpContext context)
     {
+        if (context.Request.Path.StartsWithSegments("/api/health"))
+        {
+            await _next(context);
+            return;
+        }
+        
         if (context.Response.StatusCode == 201)
         {
             await _next(context);
