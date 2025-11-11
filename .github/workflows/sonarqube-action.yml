@@ -43,8 +43,8 @@ jobs:
           export JAVA_HOME=$JAVA_HOME_17_X64
           
           dotnet sonarscanner begin \
-            /k: "{{ secrets.SONAR_PROJECT_KEY }}" \
-            /o:"{{ secrets.SONAR_ORG_KEY }}" \
+            /k: "${{ secrets.SONAR_PROJECT_KEY }}" \
+            /o: "${{ secrets.SONAR_ORG_KEY }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
             /d:sonar.solution="src/TeamManager.sln" \
