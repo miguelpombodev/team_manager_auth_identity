@@ -40,9 +40,23 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
         run: |
-          dotnet sonarscanner begin /k:"MyProjectKey" /o:"MyOrganizationKey" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          export JAVA_HOME=$JAVA_HOME_17_X64
+          
+          dotnet sonarscanner begin \
+            /k: "{{ secrets.SONAR_PROJECT_KEY }}" \
+            /o:"{{ secrets.SONAR_ORG_KEY }}" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+            /d:sonar.solution="src/TeamManager.sln" \
+            /d:sonar.scanner.skipJreProvisioning=true \
+            /d:sonar.pullrequest.provider=github \
+            /d:sonar.pullrequest.github.repository=${{ github.repository }} \
+            /d:sonar.pullrequest.github.token.secured="${{ secrets.GITHUB_TOKEN }}" \
+            /d:sonar.pullrequest.key=${{ github.event.pull_request.number }} \
+            /d:sonar.pullrequest.base=${{ github.event.pull_request.base.ref }}
+          
       - name: Build .NET Project
-        run: dotnet build --no-incremental
+        run: dotnet build "src/TeamManager.sln" --no-incremental
   
       - name: End SonarQube Analysis
         env:
