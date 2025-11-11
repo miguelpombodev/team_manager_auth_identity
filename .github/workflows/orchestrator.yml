@@ -16,7 +16,6 @@ jobs:
     uses: ./.github/workflows/sonarqube-action.yml
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
       SONAR_ORG_KEY: ${{ secrets.SONAR_ORG_KEY }}
 
