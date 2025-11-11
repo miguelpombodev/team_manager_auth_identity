@@ -84,11 +84,11 @@ Depends only on Application and Infrastructure (for DI setup).
 
 This is the fastest and recommended way to run the entire application stack (API, PostgreSQL, Redis, RabbitMQ) locally.
 
-### Prerequisites
+## Prerequisites
 
-<b>Docker Desktop installed and running.</b>
+### <b>Docker Desktop installed and running.</b>
 
-1. Create your Environment File
+#### <u>1. Create your Environment File</u>
 
 The application requires specific secrets (like the Admin password and JWT secret) to run. These are loaded from a .env file that is not committed to the repository.
 
@@ -101,11 +101,13 @@ cp .env.example .env
 
 Now, open the new .env file and fill in the values. The database seeder will use these to create the first <strong>SystemAdmin</strong> user on startup.
 
-2. Build and Run the Containers
+#### <u>2. Build and Run the Containers</u>
 
 Run the following command from the root of the solution:
 
+```bash
 docker-compose up --build
+```
 
 
 This will:
@@ -134,3 +136,7 @@ Global Roles: (e.g., SystemAdmin) Stored in AspNetRoles and provide universal pe
 Team Roles: (e.g., TeamLeader, TeamMember) Stored in the UserTeams table and are converted into custom team_role claims (e.g., "1234-abcd:TeamLeader").
 
 Custom Policies: Resource-based policies like CanManageTeam are used to verify if a user is either a SystemAdmin OR has the correct role for a specific team.
+
+## 🛠️ System Design
+Looking at the image below we can see how this application is developed and which other services its depends:
+<img src="./statics/system_design.png" alt="RabbitMQ">
