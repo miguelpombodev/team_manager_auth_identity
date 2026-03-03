@@ -45,8 +45,9 @@ services:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin123
   email_sender:
-    image: wallghost/email-sender-subscriber:latest
-    container_name: team_manager_email_sender
+    extends:
+      service: email_sender
+      file: email-service.yml
     networks:
       - tm_net
     restart: on-failure

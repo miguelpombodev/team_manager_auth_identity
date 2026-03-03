@@ -104,10 +104,11 @@ services:
       start_period: 20s
       
   email_sender:
-    image: wallghost/email-sender-subscriber:latest
-    container_name: team_manager_email_sender
+    extends:
+      service: email_sender
+      file: email-service.yml
     networks:
-      - tm_net
+      - vault_net
     restart: on-failure
     depends_on:
       - rabbitmq
